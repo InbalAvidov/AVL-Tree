@@ -4,7 +4,6 @@
 #id2: 212047196
 #name2: Inbal Moryles
 #username2: inbalmoryles
-#hiiii
 
 
 """A class represnting a node in an AVL tree"""
@@ -32,7 +31,10 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		return False
+		if self.key is None:
+			return False
+		else:
+			return True
 
 
 """
@@ -46,6 +48,7 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
+		self.height = 0
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -157,7 +160,15 @@ class AVLTree(object):
 	@returns: the maximal node, None if the dictionary is empty
 	"""
 	def max_node(self):
-		return None
+		node = get_root(self)
+		if node is None:
+			return None
+		if node.right is not is_real_node(node.right):
+			return self
+		else:
+			while node.right is is_real_node(node):
+				node = node.right
+			return node
 
 	"""returns the number of items in dictionary 
 
@@ -165,7 +176,13 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return -1	
+		if not self:
+			return 0
+		else:
+			array = avl_to_array(self)
+			return len(array)
+
+
 
 
 	"""returns the root of the tree representing the dictionary
@@ -174,4 +191,4 @@ class AVLTree(object):
 	@returns: the root, None if the dictionary is empty
 	"""
 	def get_root(self):
-		return None
+		return self.root
