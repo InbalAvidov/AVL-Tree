@@ -49,15 +49,29 @@ class AVLTree(object):
 
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
-        
+    
 	@type key: int
 	@param key: a key to be searched
 	@rtype: (AVLNode,int)
 	@returns: a tuple (x,e) where x is the node corresponding to key (or None if not found),
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
+	def search_from_node(self, node, key, e):
+		while node:
+			if node.key == key:
+				return node, e + 1
+			elif node.key < key:
+				node = node.left
+			else:
+				node = node.right
+			e += 1
+		return None, e
+
+
 	def search(self, key):
-		return None, -1
+		curr_node = self.root
+		x,e = self.search_from_node(curr_node, key, 1)
+		return x,e
 
 
 	"""searches for a node in the dictionary corresponding to the key, starting at the max
@@ -69,7 +83,15 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
-		return None, -1
+		curr_node = self.max_node()
+		e = 1
+
+		while curr_node:
+			while curr_node.key > key:
+				curr_node = curr_node.parent
+				e += 1
+			curr_node , e = self.search_from_node(node, curr_node.key, e)
+		return curr_node, e
 
 
 	"""inserts a new node into the dictionary with corresponding key and value (starting at the root)
@@ -147,8 +169,15 @@ class AVLTree(object):
 	@rtype: list
 	@returns: a sorted list according to key of touples (key, value) representing the data structure
 	"""
+	def in_order_to_arr(self, node, arr):
+		if node is None:
+			return arr
+		self.in_order_to_arr(node.left, arr)
+		arr.append((node.key , node.value))
+		self.in_order_to_arr(node.right, arr)
+
 	def avl_to_array(self):
-		return None
+		return self.in_order_to_arr(self.root, [])
 
 
 	"""returns the node with the maximal key in the dictionary
@@ -157,7 +186,7 @@ class AVLTree(object):
 	@returns: the maximal node, None if the dictionary is empty
 	"""
 	def max_node(self):
-		return None
+		return 0 ,0
 
 	"""returns the number of items in dictionary 
 
