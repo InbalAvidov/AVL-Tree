@@ -72,8 +72,8 @@ class AVLTree(object):
 
 
 	def search(self, key):
-		curr_node = self.root
-		x,e = self.search_from_node(curr_node, key, 1)
+		node = self.root
+		x,e = self.search_from_node(node, key, 1)
 		return x,e
 
 
@@ -86,15 +86,15 @@ class AVLTree(object):
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
 	def finger_search(self, key):
-		curr_node = self.max_node()
+		node = self.max_node()
 		e = 1
 
-		while is_real_node(curr_node):
-			while curr_node.key > key:
-				curr_node = curr_node.parent
+		while is_real_node(node):
+			while node.key > key:
+				node = node.parent
 				e += 1
-			curr_node , e = self.search_from_node(node, curr_node.key, e)
-		return curr_node, e
+			node , e = self.search_from_node(node, key, e)
+		return node, e
 
 
 	"""inserts a new node into the dictionary with corresponding key and value (starting at the root)
