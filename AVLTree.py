@@ -9,8 +9,8 @@
 """A class represnting a node in an AVL tree"""
 
 class AVLNode(object):
-	"""Constructor, you are allowed to add more fields. 
-	
+	"""Constructor, you are allowed to add more fields.
+
 	@type key: int
 	@param key: key of your node
 	@type value: string
@@ -23,7 +23,7 @@ class AVLNode(object):
 		self.right = None
 		self.parent = None
 		self.height = -1
-		
+
 
 	"""returns whether self is not a virtual node 
 
@@ -66,7 +66,7 @@ class AVLTree(object):
 	"""
 	def search_from_node(self, node, key, e, is_insert):
 		prev_node = None
-		while node.is_real_node():
+		while node and node.is_real_node():
 			if not is_insert:
 				if node.key == key:
 					return node, e + 1
@@ -128,6 +128,10 @@ class AVLTree(object):
 			node.left = new_node
 		else:
 			node.right = new_node
+
+
+
+
 		#update height and balance tree
 		return None, -1, -1
 
@@ -188,9 +192,9 @@ class AVLTree(object):
 	@pre: node is a real pointer to a node in self
 	"""
 	def delete(self, node):
-		return	
+		return
 
-	
+
 	"""joins self with item and another AVLTree
 
 	@type tree2: AVLTree 
@@ -230,7 +234,7 @@ class AVLTree(object):
 	def split(self, node):
 		return None, None
 
-	
+
 	"""returns an array representing dictionary 
 
 	@rtype: list
@@ -264,7 +268,7 @@ class AVLTree(object):
 			return node
 
 	def min_node(self):
-		node = get_root(self)
+		node = self.get_root()
 		if node is None:
 			return None
 		if not node.left.is_real_node():
@@ -286,8 +290,6 @@ class AVLTree(object):
 		else:
 			array = avl_to_array(self)
 			return len(array)
-
-
 
 
 	"""returns the root of the tree representing the dictionary
