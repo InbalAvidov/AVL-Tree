@@ -31,8 +31,6 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		if self is None:
-			return False
 		if self.key is None:
 			return False
 		else:
@@ -59,7 +57,7 @@ class AVLTree(object):
 		node.height = 1 + max(self.height(node.left), self.height(node.right))
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
-    
+        
 	@type key: int
 	@param key: a key to be searched
 	@rtype: (AVLNode,int)
