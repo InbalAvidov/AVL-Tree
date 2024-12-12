@@ -59,21 +59,26 @@ class AVLTree(object):
 	@returns: a tuple (x,e) where x is the node corresponding to key (or None if not found),
 	and e is the number of edges on the path between the starting node and ending node+1.
 	"""
-	def search_from_node(self, node, key, e):
-		while node:
-			if node.key == key:
-				return node, e + 1
-			elif node.key < key:
+	def search_from_node(self, node, key, e, is_insert):
+		prev_node = None
+		while node is is_real_node():
+			if not is_insert:
+				if node.key == key:
+					return node, e + 1
+			else:
+				prev_node = node
+			if node.key < key:
 				node = node.left
 			else:
 				node = node.right
 			e += 1
-		return None, e
 
+		if is_insert: return prev_node, e
+		else: return None, e
 
 	def search(self, key):
 		node = self.root
-		x,e = self.search_from_node(node, key, 1)
+		x,e = self.search_from_node(node, key, 1, False)
 		return x,e
 
 
@@ -93,7 +98,7 @@ class AVLTree(object):
 			while node.key > key:
 				node = node.parent
 				e += 1
-			node , e = self.search_from_node(node, key, e)
+			node , e = self.search_from_node(node, key, e, False)
 		return node, e
 
 
@@ -110,6 +115,15 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def insert(self, key, val):
+		new_node = AVLNode(key, val)
+		node = self.get_root()
+		while node is is_real_node():
+			node, e = self.search_from_node(node, key, 1, True)
+			if node.key < key:
+				node.left = new_node
+			else:
+				node.right = new_node
+		#update height and balance tree
 		return None, -1, -1
 
 
@@ -150,7 +164,22 @@ class AVLTree(object):
 	or the opposite way
 	"""
 	def join(self, tree2, key, val):
-		return
+		max_node = self.max_node()
+		tree2_root = tree2.get_root()
+		if max_node.key < key :
+			max_node.right = tree2_root
+		else :
+			min_node = self.min_node()
+			min_node.left = tree2_root
+			#balance the tree
+		tree2 = None
+
+
+
+
+
+
+
 
 
 	"""splits the dictionary at a given node
@@ -198,6 +227,18 @@ class AVLTree(object):
 			while node.right is is_real_node(node):
 				node = node.right
 			return node
+
+	def min_node(self):
+		node = get_root(self)
+		if node is None:
+			return None
+		if node.right is not is_real_node(node.right):
+			return self
+		else:
+			while node.right is is_real_node(node):
+				node = node.left
+			return node
+
 
 	"""returns the number of items in dictionary 
 
