@@ -31,6 +31,8 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
+		if self is None:
+			return False
 		if self.key is None:
 			return False
 		else:
@@ -49,8 +51,9 @@ class AVLTree(object):
 	def __init__(self):
 		self.root = None
 
-	def height(self, node):
-		return node.height if node else -1
+	def height(self):
+		root = self.get_root
+		return root.height if root else -1
 
 	def update_height(self, node):
 		node.height = 1 + max(self.height(node.left), self.height(node.right))
@@ -121,14 +124,47 @@ class AVLTree(object):
 	def insert(self, key, val):
 		new_node = AVLNode(key, val)
 		node = self.get_root()
-		while node.is_real_node():
-			node, e = self.search_from_node(node, key, 1, True)
-			if node.key < key:
-				node.left = new_node
-			else:
-				node.right = new_node
+
+		node, e = self.search_from_node(node, key, 1, True)
+		if node.key < key:
+			node.left = new_node
+		else:
+			node.right = new_node
 		#update height and balance tree
 		return None, -1, -1
+
+
+	def rotate_left(self, node):
+		right_child = node.right
+		node.right = right_child.left
+		if right_child.left.is_real_node:
+			right_child.left.parent = node
+			node.left = right_child.left
+		right_child.parent = node.parent
+		if not node.parent:
+			self.root = right_child
+		elif node == node.parent.right:
+			node.parent.right = right_child
+		else:
+			node.parent.left = right_child
+		left_child.left = node
+		node.parent = right_child
+
+	def rotate_right(self, node):
+		left_child = node.left
+		node.left = left_child.right
+		if left_child.right.is_real_node:
+			left_child.right.parent = node
+			node.right = left_child.right
+		left_child.parent = node.parent
+		if not node.parent:
+			self.root = left_child
+		elif node == node.parent.left:
+			node.parent.left = left_child
+		else:
+			node.parent.right = left_child
+		left_child.right = node
+		node.parent = left_child
 
 
 	"""inserts a new node into the dictionary with corresponding key and value, starting at the max
@@ -178,10 +214,6 @@ class AVLTree(object):
 			min_node.left = tree2_root
 			#balance the tree
 		tree2 = None
-
-
-
-
 
 
 
