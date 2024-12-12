@@ -240,7 +240,7 @@ class AVLTree(object):
 		if not node.left.is_real_node():
 			return self
 		else:
-			while node.left.is_real_node():
+			while node.is_real_node():
 				node = node.left
 			return node
 
