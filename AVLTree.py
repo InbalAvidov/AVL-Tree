@@ -5,6 +5,7 @@
 #name2: Inbal Moryles
 #username2: inbalmoryles
 
+import math
 
 """A class represnting a node in an AVL tree"""
 
@@ -19,17 +20,24 @@ class AVLNode(object):
 	def __init__(self, key, value):
 		self.key = key
 		self.value = value
-		self.left = None
-		self.right = None
-		self.parent = None
-		self.height = -1
-		
+		if not key:
+			self.left = None
+			self.right = None
+			self.parent = None
+			self.height = -1
+		else :
+			self.left = AVLNode(None, None)
+			self.right = AVLNode(None, None)
+			self.parent = None
+			self.height = 0
+
 
 	"""returns whether self is not a virtual node 
 
 	@rtype: bool
 	@returns: False if self is a virtual node, True otherwise.
 	"""
+
 	def is_real_node(self):
 		if self.key is None:
 			return False
@@ -39,7 +47,11 @@ class AVLNode(object):
 	def balance_factor(self):
 		return self.left.height - self.right.height
 
+	def update_height(self):
+		self.height = 1 + max(self.left.height, self.right.height)
 
+	def __repr__(self):
+		return "(" + str(self.key) + ":" + str(self.value) + ")"
 
 """
 A class implementing an AVL tree.
@@ -53,8 +65,13 @@ class AVLTree(object):
 	def __init__(self):
 		self.root = None
 
+	def height(self):
+		root = self.get_root
+		return root.height if root else -1
+
+
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
-    
+        
 	@type key: int
 	@param key: a key to be searched
 	@rtype: (AVLNode,int)
@@ -70,9 +87,9 @@ class AVLTree(object):
 			else:
 				prev_node = node
 			if node.key < key:
-				node = node.left
-			else:
 				node = node.right
+			else:
+				node = node.left
 			e += 1
 
 		if is_insert: return prev_node, e
@@ -118,25 +135,87 @@ class AVLTree(object):
 	"""
 	def insert(self, key, val):
 		new_node = AVLNode(key, val)
-		node = self.get_root()
-		if node.is_real_node():
-			node, e = self.search_from_node(node, key, 1, True)
-			if node.key < key:
-				node.left = new_node
-			else:
-				node.right = new_node
-			new_node.parent = node
-			new_node.height = 0
-			if node.left.is_real_node() and node.right.is_real_node():
-				return new_node, e, 0
-			prev_height = node.height
-			node.height = 1
-			bf = node.balance_factor()
-			if math.abs(bf) < 2 and node.height
-
-		else:
+		root = self.get_root()
+		if not root:
 			self.root = new_node
 			return new_node, 1, 0
+		else :
+			node, e = self.search_from_node(root, key, 1, True)
+			print(node.key)
+			if node.key < key:
+				node.right = new_node
+			else:
+				node.left = new_node
+			new_node.parent = node
+			new_node.height = 0
+			h = 0
+			while node.parent:
+				prev_parent_height = node.height
+				node.update_height()
+				print("prev_parent_height " , prev_parent_height)
+				print("parent.height ", node.height)
+				bf = node.parent.balance_factor()
+				print("bf is", bf)
+				if abs(bf) < 2 and prev_parent_height == node.height:
+					return new_node, e, h
+				elif abs(bf) < 2 and prev_parent_height != node.height:
+					print("height change")
+					node = node.parent
+					h += 1
+				else :
+					print("node.key " , node.key)
+					if bf == -2 : # if first child right child
+						if node.right.balance_factor() == 1: #if second child is left child
+							self.rotate_right(node)
+							self.rotate_left(node.parent)
+						else: #if second child is right child
+							self.rotate_left(node.parent)
+
+						node.right.update_height()
+					else : # if first child left child
+						if node.right.balance_factor() == 1:  #if second child is left child
+							self.rotate_right(node.parent)
+						else: #if second child is right child
+							self.rotate_left(node)
+							self.rotate_right(node.parent)
+						node.left.update_height()
+					new_node.update_height()
+					node.update_height()
+					break
+			return new_node, e, h
+
+	def rotate_left(self, node):
+		print("from ratate ", node.key)
+		right_child = node.right
+		node.right = right_child.left
+		if right_child.left.is_real_node:
+			right_child.left.parent = node
+			node.left = right_child.left
+		right_child.parent = node.parent
+		if not node.parent:
+			self.root = right_child
+		elif node == node.parent.right:
+			node.parent.right = right_child
+		else:
+			node.parent.left = right_child
+		right_child.left = node
+		node.parent = right_child
+
+	def rotate_right(self, node):
+		left_child = node.left
+		node.left = left_child.right
+		if left_child.right.is_real_node:
+			left_child.right.parent = node
+			node.right = left_child.right
+		left_child.parent = node.parent
+		if not node.parent:
+			self.root = left_child
+		elif node == node.parent.left:
+			node.parent.left = left_child
+		else:
+			node.parent.right = left_child
+		left_child.right = node
+		node.parent = left_child
 
 
 	"""inserts a new node into the dictionary with corresponding key and value, starting at the max
@@ -223,11 +302,11 @@ class AVLTree(object):
 	@returns: the maximal node, None if the dictionary is empty
 	"""
 	def max_node(self):
-		node = get_root(self)
+		node = self.get_root()
 		if node is None:
 			return None
 		if not node.right.is_real_node():
-			return self
+			return node
 		else:
 			while node.is_real_node():
 				node = node.right
@@ -240,7 +319,7 @@ class AVLTree(object):
 		if not node.left.is_real_node():
 			return self
 		else:
-			while node.is_real_node():
+			while node.left.is_real_node():
 				node = node.left
 			return node
 
@@ -256,9 +335,6 @@ class AVLTree(object):
 		else:
 			array = avl_to_array(self)
 			return len(array)
-
-
-
 
 	"""returns the root of the tree representing the dictionary
 
@@ -279,9 +355,14 @@ class AVLTree(object):
 
 		_print(self.root)
 
-tree = AVLTree()
-elements = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F")]
-for key, value in elements:
-	tree.insert(key, value)
 
-tree.print_tree()
+def main():
+	tree = AVLTree()
+	elements = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F")]
+	for key, value in elements:
+		tree.insert(key, value)
+		tree.print_tree()
+
+
+if __name__ == '__main__':
+    main()
