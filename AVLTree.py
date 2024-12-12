@@ -48,8 +48,12 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
-		self.height = 0
 
+	def height(self, node):
+		return node.height if node else -1
+
+	def update_height(self, node):
+		node.height = 1 + max(self.height(node.left), self.height(node.right))
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
     
@@ -61,7 +65,7 @@ class AVLTree(object):
 	"""
 	def search_from_node(self, node, key, e, is_insert):
 		prev_node = None
-		while node is is_real_node():
+		while node.is_real_node():
 			if not is_insert:
 				if node.key == key:
 					return node, e + 1
@@ -94,7 +98,7 @@ class AVLTree(object):
 		node = self.max_node()
 		e = 1
 
-		while is_real_node(node):
+		while node.is_real_node():
 			while node.key > key:
 				node = node.parent
 				e += 1
@@ -117,7 +121,7 @@ class AVLTree(object):
 	def insert(self, key, val):
 		new_node = AVLNode(key, val)
 		node = self.get_root()
-		while node is is_real_node():
+		while node.is_real_node():
 			node, e = self.search_from_node(node, key, 1, True)
 			if node.key < key:
 				node.left = new_node
@@ -140,6 +144,7 @@ class AVLTree(object):
 	and h is the number of PROMOTE cases during the AVL rebalancing
 	"""
 	def finger_insert(self, key, val):
+
 		return None, -1, -1
 
 
@@ -202,7 +207,7 @@ class AVLTree(object):
 	@returns: a sorted list according to key of touples (key, value) representing the data structure
 	"""
 	def in_order_to_arr(self, node, arr):
-		if is_real_node(node) == false:
+		if not node.is_real_node:
 			return arr
 		self.in_order_to_arr(node.left, arr)
 		arr.append((node.key , node.value))
@@ -221,10 +226,10 @@ class AVLTree(object):
 		node = get_root(self)
 		if node is None:
 			return None
-		if node.right is not is_real_node(node.right):
+		if not node.right.is_real_node():
 			return self
 		else:
-			while node.right is is_real_node(node):
+			while node.is_real_node():
 				node = node.right
 			return node
 
@@ -232,10 +237,10 @@ class AVLTree(object):
 		node = get_root(self)
 		if node is None:
 			return None
-		if node.right is not is_real_node(node.right):
+		if not node.left.is_real_node():
 			return self
 		else:
-			while node.right is is_real_node(node):
+			while node.left.is_real_node():
 				node = node.left
 			return node
 
@@ -262,3 +267,21 @@ class AVLTree(object):
 	"""
 	def get_root(self):
 		return self.root
+
+	####tree printer
+	def print_tree(self):
+		def _print(node, indent="", last=True):
+			if node:
+				print(indent, "`- " if last else "|- ", f"({node.key}, {node.value})", sep="")
+				indent += "   " if last else "|  "
+				_print(node.left, indent, False)
+				_print(node.right, indent, True)
+
+		_print(self.root)
+
+tree = AVLTree()
+elements = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F")]
+for key, value in elements:
+	tree.insert(key, value)
+
+tree.print_tree()
