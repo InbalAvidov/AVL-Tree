@@ -36,6 +36,10 @@ class AVLNode(object):
 		else:
 			return True
 
+	def balance_factor(self):
+		return self.left.height - self.right.height
+
+
 
 """
 A class implementing an AVL tree.
@@ -48,12 +52,6 @@ class AVLTree(object):
 	"""
 	def __init__(self):
 		self.root = None
-
-	def height(self, node):
-		return node.height if node else -1
-
-	def update_height(self, node):
-		node.height = 1 + max(self.height(node.left), self.height(node.right))
 
 	"""searches for a node in the dictionary corresponding to the key (starting at the root)
     
@@ -121,14 +119,24 @@ class AVLTree(object):
 	def insert(self, key, val):
 		new_node = AVLNode(key, val)
 		node = self.get_root()
-		while node.is_real_node():
+		if node.is_real_node():
 			node, e = self.search_from_node(node, key, 1, True)
 			if node.key < key:
 				node.left = new_node
 			else:
 				node.right = new_node
-		#update height and balance tree
-		return None, -1, -1
+			new_node.parent = node
+			new_node.height = 0
+			if node.left.is_real_node() and node.right.is_real_node():
+				return new_node, e, 0
+			prev_height = node.height
+			node.height = 1
+			bf = node.balance_factor()
+			if math.abs(bf) < 2 and node.height
+
+		else:
+			self.root = new_node
+			return new_node, 1, 0
 
 
 	"""inserts a new node into the dictionary with corresponding key and value, starting at the max
@@ -178,14 +186,6 @@ class AVLTree(object):
 			min_node.left = tree2_root
 			#balance the tree
 		tree2 = None
-
-
-
-
-
-
-
-
 
 	"""splits the dictionary at a given node
 
