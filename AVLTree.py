@@ -52,7 +52,7 @@ class AVLNode(object):
         self.height = 1 + max(self.left.height, self.right.height)
 
     def __repr__(self):
-        return "(" + str(self.key) + ":" + str(self.value) + ")"
+        return "(" + str(self.key) + ":" + str(self.value) + "h: " + str(self.height) + ")"
 
 
 """
@@ -83,9 +83,11 @@ class AVLTree(object):
 
     def search_from_node(self, node, key, e, is_insert):
         prev_node = None
+        print(node.key)
         while node.is_real_node():
             if not is_insert:
                 if node.key == key:
+                    print("print from not insert")
                     return node, e + 1
             else:
                 prev_node = node
@@ -146,7 +148,6 @@ class AVLTree(object):
             return new_node, 1, 0
         else:
             node, e = self.search_from_node(root, key, 1, True)
-            print("new node parent=", node.key)
             if node.key < key:
                 node.right = new_node
             else:
@@ -154,58 +155,50 @@ class AVLTree(object):
             new_node.parent = node
             new_node.height = 0
             h = 0
-
             while node:
-                prev_parent_height = node.height
+                prev_height = node.height
                 self.updates_heights_to_root(new_node)
                 node.update_height()
-                print("prev_parent_height ", prev_parent_height)
-                print("parent.height ", node.height)
                 if node.parent is not None:
                     bf = node.parent.balance_factor()
                 else:
-                    print("in while node has no parent")
                     bf = node.balance_factor()
-                print("bf is", bf)
-                if abs(bf) < 2 and prev_parent_height == node.height:
+                if abs(bf) < 2 and prev_height == node.height:
                     return new_node, e, h
-                elif abs(bf) < 2 and prev_parent_height != node.height:
-                    print("height change")
+                elif abs(bf) < 2 and prev_height != node.height:
                     node = node.parent
                     h += 1
                 else:
-                    print("node.key ", node.key)
                     if bf == -2:  # if first child right child
                         if node.right.balance_factor() == 1:  # if second child is left child
+                            print("rotate right then left")
                             self.rotate_right(node)
                             self.rotate_left(node.parent)
                         else:  # if second child is right child
                             self.rotate_left(node.parent)
-                        node.right.update_height()
-                        node.left.update_height()
-                        self.updates_heights_to_root(node)
-                        print(node.right, "height", node.right.height)
+                            node.left.update_height()
                     else:  # if first child left child
                         if node.right.balance_factor() == 1:  # if second child is left child
                             self.rotate_right(node.parent)
+                            node.right.update_height()
                         else:  # if second child is right child
                             self.rotate_left(node)
                             self.rotate_right(node.parent)
-                        node.left.update_height()
-                    new_node.update_height()
+                    #new_node.update_height()
                     node.update_height()
+                    self.updates_heights_to_root(node)
                     break
             return new_node, e, h
 
 
     def updates_heights_to_root(self, node):
-        print("start updates_heights_to_root")
         while node is not self.root:
             node.update_height()
-            print(node, "height", node.height, "right child ", node.right, "height is", node.right.height, "left is", node.left.height)
-            node = node.parent
+            if node.parent is None:
+                self.root = node
+            else:
+                node = node.parent
         node.update_height()
-        print(node, "height", node.height, "right child ", node.right, "height is", node.right.height, "left is", node.left.height)
         return None
 
 
@@ -215,7 +208,7 @@ class AVLTree(object):
         node.right = right_child.left
         if right_child.left.is_real_node:
             right_child.left.parent = node
-            node.left = right_child.left
+            #node.left = right_child.left
         right_child.parent = node.parent
         if not node.parent:
             self.root = right_child
@@ -232,7 +225,7 @@ class AVLTree(object):
         node.left = left_child.right
         if left_child.right.is_real_node:
             left_child.right.parent = node
-            node.right = left_child.right
+            #node.right = left_child.right
         left_child.parent = node.parent
         if not node.parent:
             self.root = left_child
@@ -411,19 +404,25 @@ class AVLTree(object):
         for line in lines:
             print(line)
 
+    def print_tree(self):
+        def _print(node, indent="", last=True):
+            if node:
+                print(indent, "`- " if last else "|- ", f"({node.key}, {node.value} , {node.height})", sep="")
+                indent += "   " if last else "|  "
+                _print(node.left, indent, False)
+                _print(node.right, indent, True)
+
+        _print(self.root)
+
 
 def main():
     tree = AVLTree()
     elements = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F")]
     for key, value in elements:
         tree.insert(key, value)
-        tree.print_tree_parent_above()
-        print()
-        print()
-        print("next step:")
+        tree.print_tree()
 
     print("finally")
-    tree.print_tree_parent_above()
 
 
 if __name__ == '__main__':
