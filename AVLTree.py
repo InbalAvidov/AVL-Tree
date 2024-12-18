@@ -63,8 +63,6 @@ class AVLNode(object):
         else:
             self.size = 0
 
-
-
     def __repr__(self):
         return "(" + str(self.key) + ":" + str(self.value) + ")"
 
@@ -197,7 +195,7 @@ class AVLTree(object):
             elif abs(bf) < 2 and prev_node_height != node.height:
                 node = node.parent
             else:
-                if bf == -2:  # if first child right child
+                if bf == -2:  # if first child right child, if bf< -1
                     if node.balance_factor() == 1:  # if second child is left child
                         self.rotate_right(node)
                         self.rotate_left(node.parent.parent)
@@ -207,7 +205,7 @@ class AVLTree(object):
                     node.left.update_height()
                     node.right.update_size()
                     node.left.update_size()
-                else:  # if first child left child
+                else:  # if first child left child, if bf > 1
                     if node.balance_factor() == 1:  # if second child is left child
                         self.rotate_right(node.parent)
                     else:  # if second child is right child
@@ -424,9 +422,6 @@ class AVLTree(object):
     def split(self, node):
         t1 = AVLTree()
         t2 = AVLTree()
-
-        split_key = node.key
-        Split_value = node.value
 
         if node.left.is_real_node():
             t1.root = node.left
