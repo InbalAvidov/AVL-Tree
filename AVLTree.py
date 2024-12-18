@@ -207,7 +207,7 @@ class AVLTree(object):
                     node.left.update_height()
                     node.right.update_size()
                     node.left.update_size()
-                else:  # if first child is left child
+                else:  # if first child left child
                     if node.balance_factor() == 1:  # if second child is left child
                         self.rotate_right(node.parent)
                     else:  # if second child is right child
@@ -215,7 +215,6 @@ class AVLTree(object):
                         self.rotate_right(node.parent.parent)
                     node.left.update_height()
                     node.left.update_size()
-                    ### why here we only update the height of the left son
 
                 new_node.update_height()
                 new_node.update_size()
@@ -223,7 +222,7 @@ class AVLTree(object):
                 break
         return new_node, e, h
 
-    def update_to_root(self, node): #need to change name to be more indicative
+    def update_to_root(self, node):
         while node is not self.root:
             node.update_height()
             node.update_size()
@@ -248,7 +247,7 @@ class AVLTree(object):
         right_child.left.update_height()
         node.parent = right_child
         node.parent.update_height()
-        #node.update_size()   ?
+        #node.update_size()
         node.parent.update_size()
 
     def rotate_right(self, node):
@@ -309,7 +308,7 @@ class AVLTree(object):
     """
 
     ##need to handle the tree heights
-    def delete(self, node):
+    def delete_node(self, node):
         # Case 1: Node has no children (leaf)
         if not node.left.is_real_node() and not node.right.is_real_node():
             if not node.parent:  # Node is root
@@ -338,11 +337,10 @@ class AVLTree(object):
             successor = self.get_successor(node.right)
             node.key = successor.key  # Replace key with successor's key
             node.value = successor.value
-            self.delete(successor)  # Recursively delete successor
+            self.delete_node(successor)  # Recursively delete successor
 
         # Rebalance the tree
         self.balance_tree(node.parent)
-
 
     def get_successor(self, node):
         # Get the node with the smallest key in the subtree
@@ -421,6 +419,7 @@ class AVLTree(object):
     dictionary smaller than node.key, and right is an AVLTree representing the keys in the 
     dictionary larger than node.key.
     """
+
 
     def split(self, node):
         t1 = AVLTree()
@@ -589,9 +588,9 @@ def main():
         tree2.insert(key, value)
 
 
-    #tree1.print_tree()
+    tree1.print_tree()
     tree1.finger_insert(35, "K")
-    #tree1.print_tree()
+    tree1.print_tree()
     tree1.finger_insert(34, "q")
     tree1.finger_insert(33, "w")
     tree1.finger_insert(32, "s")
@@ -599,18 +598,12 @@ def main():
 
 
 
-
+    tree1.print_tree()
+    #print()
     #tree2.print_tree()
     #print()
     #tree1.join(tree2 , 3 , "C")
     #tree1.print_tree()
-    node_for_split = AVLNode(32, "q")
-    t1, t2 = tree1.split(node_for_split)
-    tree1.print_tree()
-    print("after split t1 is:")
-    t1.print_tree()
-    print("after split t2 is:")
-    t2.print_tree()
 
 
 
