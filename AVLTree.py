@@ -425,29 +425,28 @@ class AVLTree(object):
         t1 = AVLTree()
         t2 = AVLTree()
 
-        split_key = node.key
-        Split_value = node.value
-
         if node.left.is_real_node():
             t1.root = node.left
 
         if node.right.is_real_node():
-            t2.root = node.right
-
+            t2.insert(node.right.key, node.right.value)
         curr = node
+        t1.print_tree()
+        print("t2")
+        t2.print_tree()
         while curr.parent is not None:
             parent = curr.parent
             parent_tree = AVLTree(parent)
-            if curr == parent.left:
+            if curr == parent.left: #curr node is left child
                 if parent.right.is_real_node():
                     right_tree = AVLTree(parent.right)
+                    right_tree.insert(parent)
                     t2.join(right_tree, parent.key, parent.value)
-                t1.join(parent_tree, parent.key, parent.value)
-            else:
+            else: #curr node is right child
                 if parent.left.is_real_node():
                     left_tree = AVLTree(parent.left)
-                    t2.join(left_tree, parent.key, parent.value)
-                t1.join(parent_tree, parent.key, parent.value)
+                    left_tree.insert(parent)
+                    t1.join(left_tree, parent.left.key, parent.left.value)
             curr = parent
 
         self = None
@@ -562,6 +561,7 @@ class AVLTree(object):
 
     def print_tree(self):
         def _print(node, indent="", last=True):
+            if not node: print("tree is empty")
             if node:
                 print(indent, "`- " if last else "|- ", f"({node.key}, {node.value} , {node.height}, {node.size})", sep="")
                 indent += "   " if last else "|  "
@@ -588,9 +588,9 @@ def main():
         tree2.insert(key, value)
 
 
-    tree1.print_tree()
+    #tree1.print_tree()
     tree1.finger_insert(35, "K")
-    tree1.print_tree()
+    #tree1.print_tree()
     tree1.finger_insert(34, "q")
     tree1.finger_insert(33, "w")
     tree1.finger_insert(32, "s")
@@ -605,7 +605,12 @@ def main():
     #tree1.join(tree2 , 3 , "C")
     #tree1.print_tree()
 
-
+    node_to_insert = AVLNode(10, "A")
+    t1 ,t2 = tree1.split(node_to_insert)
+    print("tree1:")
+    t1.print_tree()
+    print("tree2:")
+    t2.print_tree()
 
 if __name__ == '__main__':
     main()
