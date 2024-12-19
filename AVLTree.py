@@ -447,16 +447,14 @@ class AVLTree(object):
                     parent.left = AVLNode(None, None)
                     parent.right.parent = None
                     right_tree.set_root(parent.right)
-                    t2.insert(parent.key, parent.value)
-                    t2.join(right_tree, parent.right.key, parent.right.value)
+                    t2.join(right_tree, parent.key, parent.value)
             else:  # curr node is right child
                 if parent.left.is_real_node():
                     left_tree = AVLTree()
                     parent.right = AVLNode(None, None)
                     parent.left.parent = None
                     left_tree.set_root(parent.left)
-                    t1.insert(parent.key, parent.value)
-                    t1.join(left_tree, parent.left.key, parent.left.value)
+                    t1.join(left_tree, parent.key, parent.value)
             curr = parent
 
         self.set_root(None)
