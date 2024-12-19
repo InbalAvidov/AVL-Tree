@@ -79,7 +79,7 @@ class AVLTree(object):
 
     def __init__(self):
         self.root = None
-    
+
     def set_root(self, node):
         self.root = node
 
@@ -179,11 +179,10 @@ class AVLTree(object):
             else:
                 node.left = new_node
             new_node.parent = node
-            new_node, e , h = self.balance_after_insert(new_node, node, e, 0)
+            new_node, e, h = self.balance_after_insert(new_node, node, e, 0)
             return new_node, e, h
 
-
-    def balance_after_insert(self,new_node, node, e=0, h=0):
+    def balance_after_insert(self, new_node, node, e=0, h=0):
         while node:
             prev_node_height = node.height
             node.update_height()
@@ -214,7 +213,7 @@ class AVLTree(object):
             else:  # if second child is right child
                 self.rotate_left(node.parent)
         else:  # if first child left child
-            if node.balance_factor() > 0 :  # if second child is left child
+            if node.balance_factor() > 0:  # if second child is left child
                 self.rotate_right(node.parent)
             else:  # if second child is right child
                 self.rotate_left(node)
@@ -223,7 +222,6 @@ class AVLTree(object):
         node.left.update_size()
         node.right.update_height()
         node.right.update_size()
-
 
     def update_to_root(self, node):
         while node.parent is not None:
@@ -251,6 +249,7 @@ class AVLTree(object):
         right_child.left.update_size()
         node.parent = right_child
         node.parent.update_height()
+        # node.update_size()
         node.parent.update_size()
 
     def rotate_right(self, node):
@@ -273,7 +272,6 @@ class AVLTree(object):
         node.parent.update_height()
         node.parent.update_size()
         left_child.right.update_size()
-
 
     """inserts a new node into the dictionary with corresponding key and value, starting at the max
 
@@ -311,7 +309,7 @@ class AVLTree(object):
     """
 
     ##need to handle the tree heights
-    def delete_node(self, node):
+    def delete(self, node):
         # Case 1: Node has no children (leaf)
         if not node.left.is_real_node() and not node.right.is_real_node():
             if not node.parent:  # Node is root
@@ -340,10 +338,10 @@ class AVLTree(object):
             successor = self.get_successor(node.right)
             node.key = successor.key  # Replace key with successor's key
             node.value = successor.value
-            self.delete_node(successor)  # Recursively delete successor
+            self.delete(successor)  # Recursively delete successor
 
-        # Rebalance the tree
-            #node = node.parent
+            # Rebalance the tree
+            # node = node.parent
             while node:
                 node.update_height()
                 bf = node.parent.balance_factor()
@@ -357,7 +355,6 @@ class AVLTree(object):
             node = node.left
         return node
 
-    
     """joins self with item and another AVLTree
 
     @type tree2: AVLTree 
@@ -398,7 +395,6 @@ class AVLTree(object):
     dictionary larger than node.key.
     """
 
-
     def split(self, node):
         t1 = AVLTree()
         t2 = AVLTree()
@@ -413,8 +409,8 @@ class AVLTree(object):
         curr = node
         while curr.parent is not None:
             parent = curr.parent
-            #parent_tree = AVLTree(parent)
-            if curr == parent.left: #curr node is left child
+            # parent_tree = AVLTree(parent)
+            if curr == parent.left:  # curr node is left child
                 if parent.right.is_real_node():
                     right_tree = AVLTree()
                     parent.left = AVLNode(None, None)
@@ -422,7 +418,7 @@ class AVLTree(object):
                     right_tree.set_root(parent.right)
                     t2.insert(parent.key, parent.value)
                     t2.join(right_tree, parent.right.key, parent.right.value)
-            else: #curr node is right child
+            else:  # curr node is right child
                 if parent.left.is_real_node():
                     left_tree = AVLTree()
                     parent.right = AVLNode(None, None)
@@ -442,7 +438,7 @@ class AVLTree(object):
     """
 
     def in_order_to_arr(self, node, arr):
-        if node.is_real_node() :
+        if node.is_real_node():
             self.in_order_to_arr(node.left, arr)
             arr.append((node.key, node.value))
             self.in_order_to_arr(node.right, arr)
@@ -507,7 +503,8 @@ class AVLTree(object):
     def print_tree(self):
         def _print(node, indent="", last=True):
             if node:
-                print(indent, "`- " if last else "|- ", f"({node.key}, {node.value} , {node.height}, {node.size})", sep="")
+                print(indent, "`- " if last else "|- ", f"({node.key}, {node.value} , {node.height}, {node.size})",
+                      sep="")
                 indent += "   " if last else "|  "
                 _print(node.left, indent, False)
                 _print(node.right, indent, True)
@@ -517,8 +514,9 @@ class AVLTree(object):
 
 def main():
     tree1 = AVLTree()
-    elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60,"t")]
-    elements2 = [(1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E"), (6,"t")]
+    tree2 = AVLTree()
+    elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60, "t")]
+    elements2 = [(1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E"), (6, "t")]
     # elements = [(10, "A"), (20, "B"), (30, "C")]
     for key, value in elements1:
         tree1.insert(key, value)
@@ -528,11 +526,24 @@ def main():
     tree1.finger_insert(33, "w")
     tree1.finger_insert(32, "s")
     tree1.finger_insert(31, "qx")
+    # tree1.print_tree()
 
-
-
+    # print("original tree")
+    # tree1.print_tree()
+    # print()
+    # tree2.print_tree()
+    # print()
+    # tree1.join(tree2 , 3 , "C")
+    # print("after join")
     tree1.print_tree()
-    #print()
+
+    node_to_insert = tree1.search(30)[0]
+    t1, t2 = tree1.split(node_to_insert)
+    print("tree1:")
+    t1.print_tree()
+    print("tree2:")
+    t2.print_tree()
+
 
 if __name__ == '__main__':
     main()
