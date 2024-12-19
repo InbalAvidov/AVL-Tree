@@ -311,7 +311,7 @@ class AVLTree(object):
     """
 
     ##need to handle the tree heights
-    def delete_node(self, node):
+    def delete(self, node):
         # Case 1: Node has no children (leaf)
         if not node.left.is_real_node() and not node.right.is_real_node():
             if not node.parent:  # Node is root
@@ -340,7 +340,7 @@ class AVLTree(object):
             successor = self.get_successor(node.right)
             node.key = successor.key  # Replace key with successor's key
             node.value = successor.value
-            self.delete_node(successor)  # Recursively delete successor
+            self.delete(successor)  # Recursively delete successor
 
             # Rebalance the tree
             # node = node.parent
