@@ -516,7 +516,23 @@ class AVLTree(object):
 
 
 def main():
-    return None
+    tree1 = AVLTree()
+    elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60,"t")]
+    elements2 = [(1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E"), (6,"t")]
+    # elements = [(10, "A"), (20, "B"), (30, "C")]
+    for key, value in elements1:
+        tree1.insert(key, value)
+        
+    tree1.finger_insert(35, "K")
+    tree1.finger_insert(34, "q")
+    tree1.finger_insert(33, "w")
+    tree1.finger_insert(32, "s")
+    tree1.finger_insert(31, "qx")
+
+
+
+    tree1.print_tree()
+    #print()
 
 if __name__ == '__main__':
     main()
