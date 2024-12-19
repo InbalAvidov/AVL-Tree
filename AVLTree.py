@@ -201,8 +201,8 @@ class AVLTree(object):
                 self.balance_tree(node, bf)
                 new_node.update_height()
                 new_node.update_size()
-                self.update_to_root(new_node)
                 break
+        self.update_to_root(new_node)
         return new_node, e, h
 
     def balance_tree(self, node, bf):
@@ -552,6 +552,8 @@ def main():
     t1.print_tree()
     print("tree2:")
     t2.print_tree()
+
+
 
 
 if __name__ == '__main__':
