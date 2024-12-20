@@ -112,7 +112,6 @@ class AVLTree(object):
     def search_from_node(self, node, key, e, is_insert):
         prev_node = None
         while node.is_real_node():
-            #print(node.key)
             if not is_insert:  # the case of node.key == key is not possible in insert
                 if node.key == key:
                     return node, e + 1
@@ -437,9 +436,13 @@ class AVLTree(object):
 
         # Determine which tree is taller and direction to attach
         if tree1_root.height > tree2_root.height:
-            higher, shorter, attach_left = self, tree2, False
+            if tree1_root.key > tree2_root.key: flag = True
+            else: flag = False
+            higher, shorter, attach_left = self, tree2, flag
         elif tree1_root.height < tree2_root.height:
-            higher, shorter, attach_left = tree2, self, True
+            if tree1_root.key > tree2_root.key: flag = False
+            else: flag = True
+            higher, shorter, attach_left = tree2, self, flag
         else:
             # Special case: equal heights, new_node becomes root
             new_node.left, new_node.right = tree1_root, tree2_root
@@ -535,7 +538,6 @@ class AVLTree(object):
         curr = node
         while curr.parent is not None:
             parent = curr.parent
-            print("curr is ", curr.key , "parent is ", parent.key)
             if curr == parent.left:  # Current node is the left child
                 # join parent's right subtree to t2 tree
                 if parent.right.is_real_node():
@@ -551,15 +553,8 @@ class AVLTree(object):
                 if parent.left.is_real_node():
                     left_tree = AVLTree()
                     parent.left.parent = None
-                    print(parent.left.key)
                     left_tree.set_root(parent.left)
-                    print("left tree is")
-                    left_tree.print_tree()
-                    print("t1 before is")
-                    t1.print_tree()
                     t1.join(left_tree, parent.key, parent.value)
-                    print("t1 after is")
-                    t1.print_tree()
                 # Remove current connection
                 parent.right = None
 
@@ -722,14 +717,14 @@ def main():
     # print()
 
 
-    print("the node has one son (right)")
-    node = tree1.search(300)[0]
-    t1, t2 = tree1.split(node)
-    print("t1 after split")
-    t1.print_tree()
-    print("t2 after split")
-    t2.print_tree()
-    print()
+    # print("the node has one son (right)")
+    # node = tree1.search(300)[0]
+    # t1, t2 = tree1.split(node)
+    # print("t1 after split")
+    # t1.print_tree()
+    # print("t2 after split")
+    # t2.print_tree()
+    # print()
     #
     # print("the node has one son (left)")
     # node = tree1.search(200)[0]
