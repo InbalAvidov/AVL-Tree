@@ -388,50 +388,40 @@ class AVLTree(object):
     @pre: all keys in self are smaller than key and all keys in tree2 are larger than key,
     or the opposite way
     """
+    def join_with_empty_tree(self, key, new_node, root):
+            #setting root to be child of the new node and and virtual node as the other child
+            new_node.left = AVLNode(None, None) if key < root.key else root
+            new_node.right = root if key < root.key else AVLNode(None, None)
+            root.parent = new_node if root else None #update parent
+            new_node.update_height()
+            new_node.update_size()
+            self.set_root(new_node) #set new node to be self's root
+
 
     def join(self, tree2, key, val):
-        print("joining self:")
-        self.print_tree()
-        print("to tree2:")
-        tree2.print_tree()
-        """
-        Joins the current tree with another tree `tree2` using a new node with the specified key and value.
-        Both trees must satisfy the AVL property, and all keys in self must be smaller or larger than all keys in tree2.
-
-        Parameters:
-            tree2 (AVLTree): The second tree to join.
-            key (int): The key for the new root node.
-            val (any): The value for the new root node.
-        """
-        new_node = AVLNode(key, val)
+        new_node = AVLNode(key, val) #creating new node to join trees
+        #get roots of both trees for comparison
         tree1_root = self.get_root()
         tree2_root = tree2.get_root()
 
-        # Handle edge cases where one or both trees are empty
+        # Handle edge cases where both trees are empty, setting new node to be self's root
         if tree1_root is None and tree2_root is None:
             self.set_root(new_node)
             return 
 
+        
+        # Handle edge cases where one tree is empty
         if tree1_root is None:
-            new_node.left = None if key < tree2_root.key else tree2_root
-            new_node.right = tree2_root if key < tree2_root.key else None
-            tree2_root.parent = new_node if tree2_root else None
-            new_node.update_height()
-            new_node.update_size()
-            self.set_root(new_node)
-            tree2.set_root(None)
+            self.join_with_empty_tree(key, new_node, tree2_root) 
+            tree2.set_root(None) #setting tree2 root's to None
+            return
+            
+        if tree2_root is None:
+            #setting root1 to be child of the new node and and virtual node as the other child
+            self.join_with_empty_tree(key, new_node, tree1_root)
             return
 
-        if tree2_root is None:
-            new_node.left = tree1_root if key > tree1_root.key else None
-            new_node.right = None if key > tree1_root.key else tree1_root
-            tree1_root.parent = new_node if tree1_root else None
-            new_node.update_height()
-            new_node.update_size()
-            self.set_root(new_node)
-            return 
-
-        # Determine which tree is taller
+        # Determine which tree is taller and direction to attach 
         if tree1_root.height > tree2_root.height:
             higher, shorter, attach_left = self, tree2, False
         elif tree1_root.height < tree2_root.height:
@@ -439,36 +429,43 @@ class AVLTree(object):
         else:
             # Special case: equal heights, new_node becomes root
             new_node.left, new_node.right = tree1_root, tree2_root
+            #set parent
             if tree1_root:
                 tree1_root.parent = new_node
             if tree2_root:
                 tree2_root.parent = new_node
+            
             new_node.update_height()
             new_node.update_size()
-            self.set_root(new_node)
-            tree2.set_root(None)
-            return self
+            self.set_root(new_node) #setting new node as root
+            tree2.set_root(None)  #setting tree2 root's to None
+            return None
 
         # Attach the shorter tree to the taller tree
         shorter_root = shorter.get_root()
         curr_node = higher.get_root()
 
-        while shorter_root.height < curr_node.height:
-            curr_node = curr_node.left if attach_left else curr_node.right
-            if curr_node is None:
-                curr_node = AVLNode(None, None)
+        while shorter_root.height < curr_node.height: #find the right node to attach trees, according to heights
+            curr_node = curr_node.left if attach_left else curr_node.right #curr node is the node to attach to in the higher tree
+            if curr_node is None: #handeling case of None child that happening when we called to join from split with leaf
+                curr_node = AVLNode(None, None) 
 
         parent = curr_node.parent
-        if attach_left:
+        #setting shorter root and curr node as new node childrens
+        if attach_left: 
             new_node.right, new_node.left = curr_node, shorter_root
         else:
             new_node.left, new_node.right = curr_node, shorter_root
 
+        #setting parent
         curr_node.parent = new_node
         shorter_root.parent = new_node
         new_node.parent = parent
 
+        # check that the curr node is not the root of higher tree
         if parent:
+            #setting the new node to be child of the curr node parent and setting virtual node as child in case of None child
+            # this can happen when join is called from split with leaf
             if attach_left:
                 parent.left = new_node
                 if not parent.right:
@@ -477,15 +474,18 @@ class AVLTree(object):
                 parent.right = new_node
                 if not parent.left:
                     parent.left = AVLNode(None, None)
+
+        #setting new node as root of higher tree
         else:
             higher.set_root(new_node)
 
-        # Update heights and balance
+        # setting self root as higher root in case self is the shorter one
         self.set_root(higher.get_root())
 
 
         new_node.update_height()
         new_node.update_size()
+        #balance tree in case the new node is not the root
         if new_node.parent:
             new_node.parent.update_height()
             new_node.parent.update_size()
@@ -493,7 +493,7 @@ class AVLTree(object):
             self.balance_tree(new_node.parent, bf)
 
         self.update_to_root(new_node)
-        tree2.set_root(None)
+        tree2.set_root(None) 
         return self
 
     """splits the dictionary at a given node
@@ -508,20 +508,9 @@ class AVLTree(object):
     """
 
     def split(self, node):
-        """
-        Splits the current tree into two AVL trees at the given node.
-
-        Parameters:
-            node (AVLNode): The node at which to split the tree.
-
-        Returns:
-            (AVLTree, AVLTree): A tuple of two AVL trees:
-                                - The first contains all keys smaller than node.key.
-                                - The second contains all keys larger than node.key.
-        """
         t1, t2 = AVLTree(), AVLTree()
 
-        # Handle left and right subtrees of the split node
+        # initialize t1 and t2 as left and right subtrees of the split node 
         if node.left.is_real_node():
             node.left.parent = None
             t1.set_root(node.left)
@@ -529,11 +518,12 @@ class AVLTree(object):
             node.right.parent = None
             t2.set_root(node.right)
 
+        #going up the tree until root for spliting and joining subtrees
         curr = node
         while curr.parent is not None:
             parent = curr.parent
             if curr == parent.left:  # Current node is the left child
-                # Detach parent's right subtree
+                # join parent's right subtree to t2 tree
                 if parent.right.is_real_node():
                     right_tree = AVLTree()
                     parent.right.parent = None
@@ -543,7 +533,7 @@ class AVLTree(object):
                 parent.left = None
 
             else:  # Current node is the right child
-                # Detach parent's left subtree
+                # jpin parent's left subtree to t1 tree
                 if parent.left.is_real_node():
                     left_tree = AVLTree()
                     parent.left.parent = None
@@ -569,13 +559,13 @@ class AVLTree(object):
 
     def in_order_to_arr(self, node, arr):
         if node.is_real_node():
-            self.in_order_to_arr(node.left, arr)
-            arr.append((node.key, node.value))
-            self.in_order_to_arr(node.right, arr)
+            self.in_order_to_arr(node.left, arr) # Recursively traverse the left subtree
+            arr.append((node.key, node.value)) # Append the current node's key and value
+            self.in_order_to_arr(node.right, arr) # Recursively traverse the right subtree
         return arr
 
     def avl_to_array(self):
-        arr = self.in_order_to_arr(self.root, [])
+        arr = self.in_order_to_arr(self.root, []) #creating array of nodes using in order
         return arr
 
     """returns the node with the maximal key in the dictionary
@@ -586,27 +576,29 @@ class AVLTree(object):
 
     def max_node(self):
         node = self.get_root()
-        if node is None:
+        if node is None: # if the tree is empty, return None
             return None
-        if not node.right.is_real_node():
+        if not node.right.is_real_node(): # if there is no right child, the root is the maximum node
             return node
-        else:
-            parent = node
-            while node.is_real_node():
-                parent = node
+        else: # travel down the right subtree to find the rightmost node
+            parent = node 
+            while node.is_real_node(): # Continue until a virtual node is reached
+                parent = node # Keep track of the last real node
                 node = node.right
-            return parent
+            return parent # Return the last real node encountered
 
     def min_node(self):
         node = self.get_root()
-        if node is None:
+        if node is None: # if the tree is empty, return None
             return None
-        if not node.left.is_real_node():
+        if not node.left.is_real_node(): # if there is no left child, the root is the minimum node
             return self
-        else:
-            while node.left.is_real_node():
+        else: # travel down the right subtree to find the leftmost node
+            parent = node
+            while node.left.is_real_node():  # Continue until a virtual node is reached
+                parent = node # Keep track of the last real node
                 node = node.left
-            return node
+            return parent # Return the last real node encountered
 
     """returns the number of items in dictionary 
 
@@ -628,7 +620,7 @@ class AVLTree(object):
     """
 
     def get_root(self):
-        return self.root
+        return self.root #return root
 
     def print_tree(self):
         def _print(node, indent="", last=True):
@@ -673,7 +665,7 @@ def main():
     #print(tree1.avl_to_array())
     #print(tree1.size())
 
-    node = tree1.search(200)[0]
+    node = tree1.search(33)[0]
     #tree1.delete(node_to_delete)
     #print("after delete")
     #tree1.print_tree()
