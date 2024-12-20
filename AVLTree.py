@@ -241,6 +241,9 @@ class AVLTree(object):
         node.update_height()
         curr_height = node.height
         while node.parent is not None and prev_height != curr_height:
+            prev_height = node.height
+            node.update_height()
+            curr_height = node.height
             #node.update_size()
             node = node.parent
         # update root
