@@ -508,7 +508,6 @@ class AVLTree(object):
             bf = new_node.parent.balance_factor()
             self.balance_tree(new_node.parent, bf)
 
-        self.update_heights_above(new_node)
         tree2.set_root(None)
         return self
 
