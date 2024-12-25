@@ -155,13 +155,13 @@ class Test:
             self._perform_insert(step)
         if step[0] == "finger_insert":
             self._perform_finger_insert(step)
+        print(step[0])
         self._check_state()
 
     def _perform_delete(self, step):
         step_type, tree, key = step
         self.key_lists[tree].remove(key)
         node = self.trees[tree].search(key)[0]
-        print_tree(self.trees[tree].get_root())
         self.trees[tree].delete(node)
 
     def _perform_insert(self, step):
