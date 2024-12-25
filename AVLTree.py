@@ -27,13 +27,14 @@ class AVLNode(object):
             self.right = None  # right child of virual node is None
             self.parent = None
             self.height = -1
+            self.size = 0
             #self.size = 0
         else:  # key has not None value, creating a real node
             self.left = AVLNode(None, None)  # left child is virtual node
             self.right = AVLNode(None, None)  # right child is virtual node
             self.parent = None
             self.height = 0
-            #self.size = 1
+            self.size = 1
 
     """returns whether self is not a virtual node 
 
