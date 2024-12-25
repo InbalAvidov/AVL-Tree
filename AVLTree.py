@@ -214,6 +214,7 @@ class AVLTree(object):
         return new_node, h
 
     def balance_tree(self, node, bf):
+        print("balance with node", node.key ,"and bf is" , bf)
         """Rebalance the tree."""
         if bf < -1:  # if node is right child
             if node.balance_factor() > 0:  # if node is left heavy
@@ -221,6 +222,7 @@ class AVLTree(object):
                 self.rotate_left(node.parent.parent)
             else:  # if node is right heavy
                 self.rotate_left(node.parent)
+                return
         elif bf > 1:  # if node is left child
             if node.balance_factor() > 0:  # if node is left heavy
                 self.rotate_right(node.parent)
@@ -316,6 +318,7 @@ class AVLTree(object):
 
     # insert new node to the tree, search the new node parent from max node
     def finger_insert(self, key, val):
+        print("finger insert node", key)
         new_node = AVLNode(key, val)
         if self.root is None:  # if the tree is empty, set new node to root
             self.root = new_node
@@ -325,15 +328,13 @@ class AVLTree(object):
             node, e = self.finger_search(key, True)  # find the new node parent
             # and the number of edges from root to the parent
             # setting the new node as child of the parent
-            print("new node is" , key, "and parent is", node.key)
             if node.key < key:
                 node.right = new_node
             else:
                 node.left = new_node
             new_node.parent = node
-            print("new_node.parent.key ", new_node.parent.key)
-            print("node.left" , node.left.key , "node.right ", node.right.key)
             new_node, h = self.balance_after_insert(new_node, node, 0)  # balance the tree after insertion
+            self.print_tree()
             self.set_size(1)
             return new_node, e, h
 
@@ -374,17 +375,40 @@ class AVLTree(object):
             node.key, node.value = successor.key, successor.value  # Replace key and value with successor's key
             self.delete(successor)  # Recursively delete successor
 
-            # Rebalance the tree until root
-            while node.parent:
-                node.update_height()
-                bf = node.parent.balance_factor()
-                self.balance_tree(node, bf)
-                self.update_heights_above(node)  # update heights and sizes until necessary
-                node = node.parent
-        #update tree's size
+        # Rebalance the tree until root
+        # while node:
+        #     #node.update_height()
+        #     if node.parent is not None:  # if node is not root, look for his parent bf
+        #         bf = node.parent.balance_factor()
+        #     else:  # case the node is root check his bf
+        #         bf = node.balance_factor()
+        #     self.balance_tree(node, bf)
+        #     #bf = node.parent.balance_factor()
+        #     self.update_heights_above(node)  # update heights and sizes until necessary
+        #     node = node.parent
+        # #update tree's size
+        # self.set_size(-1)
+        #if node.parent: #if node is not root
+            #self.update_heights_above(node.parent)
+        # Rebalance the tree and update heights
+        current = node.parent
+        prev = current
+        while current:
+            current.update_height()  # Update the height of the current node
+            bf = current.balance_factor()  # Calculate balance factor
+            if current.parent is None:
+                if current.left.key == prev.key and current.right.is_real_node():
+                    current = current.right
+                elif current.right.key == prev.key and current.left.is_real_node():
+                    current = current.left
+                self.balance_tree(current, bf)
+                break
+            self.balance_tree(current, bf)  # Call the balance_tree function
+            prev = current
+            current = current.parent  # Move up the tree
+
+        # Update tree's size
         self.set_size(-1)
-        if node.parent: #if node is not root
-            self.update_heights_above(node.parent)
 
     def get_successor(self, node):
         # Get the node with the smallest key in the subtree
@@ -481,7 +505,6 @@ class AVLTree(object):
         self.print_tree()
         # balance tree in case the new node is not the root
         if new_node.parent:
-            print(new_node.parent.key)
             new_node.parent.update_height()
             bf = new_node.parent.balance_factor()
             if new_node.parent.parent is None: #if the new node is direct child of the root
