@@ -378,7 +378,6 @@ class AVLTree(object):
                 node = node.parent
         # update tree's size
         self.set_size(-1)
-        self.update_heights_above(node.parent)  # update heights and sizes until necessary
 
     def get_successor(self, node):
         # Get the node with the smallest key in the subtree
