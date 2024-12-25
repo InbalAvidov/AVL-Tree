@@ -200,11 +200,15 @@ class Test:
             self.trees[tree].join(ltree, key, (key, "value"))
         else:
             rlist = self.key_lists.pop(tree + 1)
+            print("from join")
+            print(rlist)
             rtree = self.trees.pop(tree + 1)
+            print_tree(rtree.root)
             self.key_lists[tree].append(key)
             self.key_lists[tree] += rlist
             self.key_lists[tree].sort()
             self.trees[tree].join(rtree, key, (key, "value"))
+            self.trees[tree].print_tree()
 
     def _generate_step(self):
         sizes = [len(lst) for lst in self.key_lists]
