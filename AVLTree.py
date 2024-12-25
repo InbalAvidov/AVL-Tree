@@ -267,6 +267,8 @@ class AVLTree(object):
 
         # Update the parent pointer of the current node to point to the right child.
         node.parent = right_child
+        node.left.parent = node
+        node.right.parent= node
 
         right_child.left.update_height()
         node.parent.update_height()
@@ -293,6 +295,8 @@ class AVLTree(object):
 
         # Update the parent pointer of the current node to point to the left child.
         node.parent = left_child
+        node.left.parent = node
+        node.right.parent= node
 
         left_child.right.update_height()
         node.parent.update_height()
@@ -379,6 +383,8 @@ class AVLTree(object):
                 node = node.parent
         #update tree's size
         self.set_size(-1)
+        if node.parent: #if node is not root
+            self.update_heights_above(node.parent)
 
     def get_successor(self, node):
         # Get the node with the smallest key in the subtree
@@ -525,6 +531,8 @@ class AVLTree(object):
                         parent.right.parent = None
                         right_tree.set_root(parent.right)
                         t2.join(right_tree, parent.key, parent.value)
+                else :
+                    t2.insert(parent.key , parent.value)
                 # Remove current connection
                 parent.left = None
 
@@ -540,6 +548,8 @@ class AVLTree(object):
                         left_tree.set_root(parent.left)
                         parent.left.parent = None
                         t1.join(left_tree, parent.key, parent.value)
+                else :
+                    t1.insert(parent.key , parent.value)
                 # Remove current connection
                 parent.right = None
 
@@ -633,14 +643,14 @@ class AVLTree(object):
         _print(self.root)
 
 
-# def main():
-#     tree1 = AVLTree()
+def main():
+    tree1 = AVLTree()
 #     tree2 = AVLTree()
-#     elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60, "t")]
+    elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60, "t")]
 #     elements2 = [(100, "A"), (200, "B"), (300, "C"), (400, "L")]
 #     # elements = [(10, "A"), (20, "B"), (30, "C")]
-#     for key, value in elements1:
-#         tree1.insert(key, value)
+    for key, value in elements1:
+        tree1.insert(key, value)
 #
 #     for key, value in elements2:
 #         tree2.insert(key, value)
@@ -652,7 +662,15 @@ class AVLTree(object):
 #     tree1.finger_insert(32, "s")
 #     tree1.finger_insert(31, "qx")
 #     print("size tree after finger insert: ", tree1.size)
-#     tree1.print_tree()
+    tree1.print_tree()
+    node = tree1.search(25)[0]
+    tree1.delete(node)
+    tree1.print_tree()
+    node = tree1.search(10)[0]
+    t1, t2 = tree1.split(node)
+    t1.print_tree()
+    t2.print_tree()
+
 #     #
 #     #print("tree 1")
 #     #tree1.print_tree()
@@ -669,10 +687,10 @@ class AVLTree(object):
     #cases to check - split :
 
     # print("the node is root:")
-    # node = tree1.search(33)[0]
+   
     # t1, t2 = tree1.split(node)
     # print("t1 after split")
-    # t1.print_tree()
+    
     # print("t2 after split")
     # t2.print_tree()
     # print()
