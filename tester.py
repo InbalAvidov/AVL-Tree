@@ -162,6 +162,8 @@ class Test:
         step_type, tree, key = step
         self.key_lists[tree].remove(key)
         node = self.trees[tree].search(key)[0]
+        print_tree(self.trees[tree].get_root())
+        print("deleting " , node.key)
         self.trees[tree].delete(node)
 
     def _perform_insert(self, step):
@@ -397,8 +399,6 @@ class Test:
         tree = self.trees[tree_index]
         key_list = self.key_lists[tree_index]
         expected_inorder = ((key, (key, "value")) for key in key_list)
-        print("before in order")
-        print_tree(tree.get_root())
         received_inorder = tree.avl_to_array()
         assert len(received_inorder) == len(key_list), (
             f"In-order (avl_to_array) result length doesn't match expected value."
@@ -470,7 +470,7 @@ class Test:
         tester_balance_factor = height_left - height_right
         assert abs(tester_balance_factor) < 2,(
         f"Balance factor (computed by tester) of node {key} is {tester_balance_factor}"
-        f"this is node.left {node.left.key}"
+        f"this is {node.left.key}"
         )
         try:
             avl_balance_factor = node.get_balance_factor()
@@ -503,7 +503,7 @@ class Test:
 
 def print_tree(root, indent="", pointer="Root: "):
     if root is not None:
-        print(indent + pointer + str(root.key) + " parent=" + str(root.parent.key if root.parent else "None"))
+        print(indent + pointer + str(root.key) + " parent=" + str(root.parent.key if root.parent else "None") + " " + str(root.height))
 
         if root.left or root.right:
             if root.left:
