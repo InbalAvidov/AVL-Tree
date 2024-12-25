@@ -417,8 +417,6 @@ class AVLTree(object):
         #  Handle edge cases where one tree is empty
         if tree1_root is None:
             tree2.insert(new_node.key, new_node.value)
-            print("from the og join")
-            tree2.print_tree()
             self.set_root(tree2_root)
             tree2.set_root(None)
             return None
@@ -482,10 +480,8 @@ class AVLTree(object):
         self.set_root(higher.get_root())
 
         new_node.update_height()
-        self.print_tree()
         # balance tree in case the new node is not the root
         if new_node.parent:
-            print(new_node.parent.key)
             new_node.parent.update_height()
             bf = new_node.parent.balance_factor()
             if new_node.parent.parent is None:  # if the new node is direct child of the root

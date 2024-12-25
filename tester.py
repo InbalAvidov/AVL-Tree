@@ -470,7 +470,7 @@ class Test:
         tester_balance_factor = height_left - height_right
         assert abs(tester_balance_factor) < 2,(
         f"Balance factor (computed by tester) of node {key} is {tester_balance_factor}"
-        f"this is {node.left}"
+        f"this is node.left {node.left.key}"
         )
         try:
             avl_balance_factor = node.get_balance_factor()
