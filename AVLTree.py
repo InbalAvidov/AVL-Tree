@@ -342,7 +342,6 @@ class AVLTree(object):
     @type node: AVLNode
     @pre: node is a real pointer to a node in self
     """
-
     def delete(self, node):
         # Case 1: Node has no children (leaf)
         if not node.left.is_real_node() and not node.right.is_real_node():
@@ -359,7 +358,6 @@ class AVLTree(object):
 
             if not node.parent:  # Node is root
                 self.root = child  # setting the one child to be the root
-            # replacing the node with his child
             elif node == node.parent.left:  # node is left child
                 node.parent.left = child
             else:  # node is right child
@@ -374,40 +372,27 @@ class AVLTree(object):
             node.key, node.value = successor.key, successor.value  # Replace key and value with successor's key
             self.delete(successor)  # Recursively delete successor
 
-        # Rebalance the tree until root
-        # while node:
-        #     #node.update_height()
-        #     if node.parent is not None:  # if node is not root, look for his parent bf
-        #         bf = node.parent.balance_factor()
-        #     else:  # case the node is root check his bf
-        #         bf = node.balance_factor()
-        #     self.balance_tree(node, bf)
-        #     #bf = node.parent.balance_factor()
-        #     self.update_heights_above(node)  # update heights and sizes until necessary
-        #     node = node.parent
-        # #update tree's size
-        # self.set_size(-1)
-        #if node.parent: #if node is not root
-            #self.update_heights_above(node.parent)
         # Rebalance the tree and update heights
-        current = node.parent
-        prev = current
+        current = node
         while current:
             current.update_height()  # Update the height of the current node
-            bf = current.balance_factor()  # Calculate balance factor
-            if current.parent is None:
-                if current.left.key == prev.key and current.right.is_real_node():
-                    current = current.right
-                elif current.right.key == prev.key and current.left.is_real_node():
-                    current = current.left
-                self.balance_tree(current, bf)
-                break
-            self.balance_tree(current, bf)  # Call the balance_tree function
-            prev = current
+            balance_factor = current.balance_factor()  # Calculate balance factor
+
+            # Perform rotations if needed
+            if balance_factor > 1:  # Left-heavy
+                if current.left.balance_factor() < 0:  # Left-Right case
+                    self.rotate_left(current.left)
+                self.rotate_right(current)  # Left-Left case
+            elif balance_factor < -1:  # Right-heavy
+                if current.right.balance_factor() > 0:  # Right-Left case
+                    self.rotate_right(current.right)
+                self.rotate_left(current)  # Right-Right case
+
             current = current.parent  # Move up the tree
 
         # Update tree's size
         self.set_size(-1)
+
 
     def get_successor(self, node):
         # Get the node with the smallest key in the subtree
@@ -694,9 +679,8 @@ def main():
     tree1.delete(node)
     tree1.print_tree()
     node = tree1.search(10)[0]
-    t1, t2 = tree1.split(node)
-    t1.print_tree()
-    t2.print_tree()
+    tree1.delete(node)
+    tree1.print_tree()
 
 
 #     #
