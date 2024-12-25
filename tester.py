@@ -133,7 +133,7 @@ class Test:
             steps.append(step)
             try:
                 self._perform_step(step)
-
+                
             except Exception as e:
                 raise TestFailedException(steps) from e
 
@@ -161,6 +161,7 @@ class Test:
         step_type, tree, key = step
         self.key_lists[tree].remove(key)
         node = self.trees[tree].search(key)[0]
+        print_tree(self.trees[tree].get_root())
         self.trees[tree].delete(node)
 
     def _perform_insert(self, step):
@@ -392,6 +393,8 @@ class Test:
         tree = self.trees[tree_index]
         key_list = self.key_lists[tree_index]
         expected_inorder = ((key, (key, "value")) for key in key_list)
+        print("before in order")
+        print_tree(tree.get_root())
         received_inorder = tree.avl_to_array()
         assert len(received_inorder) == len(key_list), (
             f"In-order (avl_to_array) result length doesn't match expected value."
@@ -428,6 +431,7 @@ class Test:
 
     def _validate_trees(self):
         for tree in self.trees:
+            print_tree(tree.get_root())
             if tree.root is not None:
                 self._validate_node(tree.root, tree.root)
                 assert tree.root.parent is None, (
@@ -480,7 +484,6 @@ class Test:
         tester_size = size_left + size_right + 1
         avl_size = node.size
         assert avl_size == avl_size, f"Incorrect size for node {key}: {avl_size}. Correct size is {tester_size}"
-
         left_key = node.left.key
         left_parent_key = getattr(node.left.parent, "get_key", lambda: None)()
         assert node.left.parent is node, (
@@ -496,7 +499,7 @@ class Test:
 
 def print_tree(root, indent="", pointer="Root: "):
     if root is not None:
-        print(indent + pointer + str(root.key))
+        print(indent + pointer + str(root.key) + " parent=" + str(root.parent.key if root.parent else "None"))
 
         if root.left or root.right:
             if root.left:

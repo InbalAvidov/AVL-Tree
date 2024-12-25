@@ -19,14 +19,15 @@ class AVLNode(object):
     @param value: data of your node
     """
 
-    def __init__(self, key, value):
+    def __init__(self, key, value, node= None):
         self.key = key
         self.value = value
         if key is None:  # no key, creating a virtual node
             self.left = None  # left child of virual node is None
             self.right = None  # right child of virual node is None
-            self.parent = None
+            self.parent = node
             self.height = -1
+            ##remember to delete
             self.size = 0
             #self.size = 0
         else:  # key has not None value, creating a real node
@@ -34,6 +35,9 @@ class AVLNode(object):
             self.right = AVLNode(None, None)  # right child is virtual node
             self.parent = None
             self.height = 0
+            self.left.parent = self
+            self.right.parent = self
+            ##remember to delete
             self.size = 1
 
     """returns whether self is not a virtual node 
@@ -53,13 +57,19 @@ class AVLNode(object):
     def balance_factor(self):
         return self.left.height - self.right.height
 
+    #remember to delete
+    def get_balance_factor(self):
+        return self.balance_factor()
+
     # update node height
     def update_height(self):
         if self.is_real_node():
-            # if the node's child is virtual node set self.child.height to be -1
-            self.height = 1 + max(self.left.height if self.left and self.left.is_real_node() else -1,
-                                  self.right.height if self.right and self.right.is_real_node() else -1)
+            # If the node is a real node, calculate the height based on its children.
+            left_height = self.left.height if self.left and self.left.is_real_node() else -1
+            right_height = self.right.height if self.right and self.right.is_real_node() else -1
+            self.height = 1 + max(left_height, right_height)
         else:
+            # If it's a virtual node, set the height to -1
             self.height = -1
 
 
@@ -83,11 +93,6 @@ class AVLTree(object):
     
     def set_size(self, size_to_add):
         self.size = self.size + size_to_add
-
-    # def update_tree_size(self, direction):
-    #     if direction == "+1": self.size += 1
-    #     elif direction == "-1" and self.size > 0 : self.size -= 1
-    #     else: self.size = 0 #cant be lower than 0
 
 
     """searches for a node in the dictionary corresponding to the key (starting at the root)
@@ -316,11 +321,14 @@ class AVLTree(object):
             node, e = self.finger_search(key, True)  # find the new node parent
             # and the number of edges from root to the parent
             # setting the new node as child of the parent
+            print("new node is" , key, "and parent is", node.key)
             if node.key < key:
                 node.right = new_node
             else:
                 node.left = new_node
             new_node.parent = node
+            print("new_node.parent.key ", new_node.parent.key)
+            print("node.left" , node.left.key , "node.right ", node.right.key)
             new_node, h = self.balance_after_insert(new_node, node, 0)  # balance the tree after insertion
             self.set_size(1)
             return new_node, e, h
@@ -337,9 +345,9 @@ class AVLTree(object):
             if not node.parent:  # Node is root
                 self.root = None  # set the root to None
             elif node == node.parent.left:
-                node.parent.left = AVLNode(None, None)
+                node.parent.left = AVLNode(None, None, node.parent)
             else:
-                node.parent.right = AVLNode(None, None)
+                node.parent.right = AVLNode(None, None, node.parent)
 
         # Case 2: Node has one child
         elif not node.left.is_real_node() or not node.right.is_real_node():
@@ -550,6 +558,8 @@ class AVLTree(object):
     """
 
     def in_order_to_arr(self, node, arr):
+        if node is None:
+            return arr
         if node.is_real_node():
             self.in_order_to_arr(node.left, arr)  # Recursively traverse the left subtree
             arr.append((node.key, node.value))  # Append the current node's key and value
@@ -623,36 +633,36 @@ class AVLTree(object):
         _print(self.root)
 
 
-def main():
-    tree1 = AVLTree()
-    tree2 = AVLTree()
-    elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60, "t")]
-    elements2 = [(100, "A"), (200, "B"), (300, "C"), (400, "L")]
-    # elements = [(10, "A"), (20, "B"), (30, "C")]
-    for key, value in elements1:
-        tree1.insert(key, value)
-
-    for key, value in elements2:
-        tree2.insert(key, value)
-
-    print("size tree: ", tree1.size)
-    tree1.finger_insert(35, "K")
-    tree1.finger_insert(34, "q")
-    tree1.finger_insert(33, "w")
-    tree1.finger_insert(32, "s")
-    tree1.finger_insert(31, "qx")
-    print("size tree after finger insert: ", tree1.size)
-    tree1.print_tree()
-    #
-    #print("tree 1")
-    #tree1.print_tree()
-    #print("tree 2")
-    #tree2.print_tree()
-    #print()
-    tree1.join(tree2, 70, "p")
-    print("after join" , tree1.size)
-    tree1.print_tree()
-    print("start split cases")
+# def main():
+#     tree1 = AVLTree()
+#     tree2 = AVLTree()
+#     elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60, "t")]
+#     elements2 = [(100, "A"), (200, "B"), (300, "C"), (400, "L")]
+#     # elements = [(10, "A"), (20, "B"), (30, "C")]
+#     for key, value in elements1:
+#         tree1.insert(key, value)
+#
+#     for key, value in elements2:
+#         tree2.insert(key, value)
+#
+#     print("size tree: ", tree1.size)
+#     tree1.finger_insert(35, "K")
+#     tree1.finger_insert(34, "q")
+#     tree1.finger_insert(33, "w")
+#     tree1.finger_insert(32, "s")
+#     tree1.finger_insert(31, "qx")
+#     print("size tree after finger insert: ", tree1.size)
+#     tree1.print_tree()
+#     #
+#     #print("tree 1")
+#     #tree1.print_tree()
+#     #print("tree 2")
+#     #tree2.print_tree()
+#     #print()
+#     tree1.join(tree2, 70, "p")
+#     print("after join" , tree1.size)
+#     tree1.print_tree()
+#     print("start split cases")
 
 
 
@@ -698,7 +708,7 @@ def main():
     # print()
     #
     # print("the node has one son (left)")
-    node = tree1.search(35)[0]
+    #node = tree1.search(35)[0]
     # t1, t2 = tree1.split(node)
     # print("t1 after split")
     # t1.print_tree()
