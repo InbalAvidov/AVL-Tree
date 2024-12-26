@@ -306,7 +306,7 @@ class AVLTree(object):
             else:
                 node.left = new_node
             new_node.parent = node
-            h = self.rebalance(new_node))  # balance the tree after insertion
+            h = self.rebalance(new_node)  # balance the tree after insertion
             self.set_size(1)
             return new_node, e, h
 
