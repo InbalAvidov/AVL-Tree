@@ -155,15 +155,14 @@ class Test:
             self._perform_insert(step)
         if step[0] == "finger_insert":
             self._perform_finger_insert(step)
-        print(step[0])
         self._check_state()
 
     def _perform_delete(self, step):
         step_type, tree, key = step
         self.key_lists[tree].remove(key)
         node = self.trees[tree].search(key)[0]
-        print_tree(self.trees[tree].get_root())
-        print("deleting " , node.key)
+        #print_tree(self.trees[tree].get_root())
+        #print("deleting " , node.key)
         self.trees[tree].delete(node)
 
     def _perform_insert(self, step):
@@ -200,15 +199,15 @@ class Test:
             self.trees[tree].join(ltree, key, (key, "value"))
         else:
             rlist = self.key_lists.pop(tree + 1)
-            print("from join")
-            print(rlist)
+            # print("from join")
+            # print(rlist)
             rtree = self.trees.pop(tree + 1)
-            print_tree(rtree.root)
+            #print_tree(rtree.root)
             self.key_lists[tree].append(key)
             self.key_lists[tree] += rlist
             self.key_lists[tree].sort()
             self.trees[tree].join(rtree, key, (key, "value"))
-            self.trees[tree].print_tree()
+            #self.trees[tree].print_tree()
 
     def _generate_step(self):
         sizes = [len(lst) for lst in self.key_lists]
@@ -435,7 +434,6 @@ class Test:
 
     def _validate_trees(self):
         for tree in self.trees:
-            print_tree(tree.get_root())
             if tree.root is not None:
                 self._validate_node(tree.root, tree.root)
                 assert tree.root.parent is None, (
