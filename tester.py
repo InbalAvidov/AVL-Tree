@@ -157,10 +157,6 @@ class Test:
             self._perform_insert(step)
         if step[0] == "finger_insert":
             self._perform_finger_insert(step)
-<<<<<<< HEAD
-=======
-        #print(step[0])
->>>>>>> 60cc20e6571abc7d7b584c14fecf1d545dcc3b96
         self._check_state()
 
     def _perform_delete(self, step):
@@ -440,10 +436,6 @@ class Test:
 
     def _validate_trees(self):
         for tree in self.trees:
-<<<<<<< HEAD
-=======
-            # print_tree(tree.get_root())
->>>>>>> 60cc20e6571abc7d7b584c14fecf1d545dcc3b96
             if tree.root is not None:
                 self._validate_node(tree.root, tree.root)
                 assert tree.root.parent is None, (

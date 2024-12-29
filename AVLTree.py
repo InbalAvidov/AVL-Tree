@@ -6,6 +6,7 @@
 # username2: inbalmoryles
 
 import math
+import random
 
 """A class represnting a node in an AVL tree"""
 
@@ -198,37 +199,34 @@ class AVLTree(object):
         while node:
             prev_node_height = node.height  # saving prev height for comparison
             node.update_height()
-            if prev_node_height != node.height: h += 1  # case of promote
-            if node.parent is not None:  # if node is not root, look for his parent bf
-                bf = node.parent.balance_factor()
-            else:  # case the node is root check his bf
-                bf = node.balance_factor()
+            bf = node.balance_factor()
             if abs(bf) < 2 and prev_node_height == node.height:  # bf is legal and height didnt change, finish
                 return new_node, h
-            elif abs(bf) < 2 and prev_node_height != node.height:  # bf is legel but height has changed, check parent
-                node = node.parent
+            elif abs(bf) < 2 and prev_node_height != node.height:
+                h += 1
+                node = node.parent # bf is legel but height has changed, check parent
             else:  # balance tree
                 self.balance_tree(node, bf)
                 new_node.update_height()
                 self.update_heights_above(new_node)  # update heights while necessary
-                break
+                return new_node, h
         return new_node, h
 
     def balance_tree(self, node, bf):
         """Rebalance the tree."""
         if bf < -1:  # if node is right child
-            if node.balance_factor() > 0:  # if node is left heavy
-                self.rotate_right(node)
-                self.rotate_left(node.parent.parent)
-            else:  # if node is right heavy
-                self.rotate_left(node.parent)
-                return
-        elif bf > 1:  # if node is left child
-            if node.balance_factor() > 0:  # if node is left heavy
-                self.rotate_right(node.parent)
+            if node.right.balance_factor() > 0:  # if node is left heavy
+                self.rotate_right(node.right)
+                self.rotate_left(node)
             else:  # if node is right heavy
                 self.rotate_left(node)
-                self.rotate_right(node.parent.parent)
+                return
+        elif bf > 1:  # if node is left child
+            if node.left.balance_factor() > 0:  # if node is left heavy
+                self.rotate_right(node)
+            else:  # if node is right heavy
+                self.rotate_left(node.left)
+                self.rotate_right(node)
         # update node's childrens
         node.left.update_height()
         node.right.update_height()
@@ -675,11 +673,26 @@ class AVLTree(object):
 def main():
     tree1 = AVLTree()
     tree2 = AVLTree()
-    # elements1 = [(10, "A"), (20, "B"), (30, "C"), (40, "D"), (50, "E"), (25, "F"), (60, "t"),(4, "D"), (6, "E"), (11, "F"), (80, "t")]
-    # elements2 = [(100, "A"), (200, "B"), (300, "C"), (400, "L")]
-    # #     # elements = [(10, "A"), (20, "B"), (30, "C")]
-    # for key, value in elements1:
-    #     tree1.insert(key, value)
+    elements1 = [(i,"A") for i in range(1, 111*(2**5)+1)]
+    #random.shuffle(elements1)
+    elements2 = [(10, "A"),(20, "A"),(30, "A"),(40, "A")]
+    # #     # 3 = [(10, "A"), (20, "B"), (30, "C")]
+   #
+    #while k < 20  :
+    sum = 0
+    for key, value in elements1:
+        node, e, h= tree1.finger_insert(key, value)
+        sum += h
+        #print(h)
+            #print(tree1.avl_to_array())
+    print(sum)
+        #sums.append(sum)
+        #k += 1
+    # all = 0
+    # for i in range(len(sums)):
+    #     all += sums[i]
+    # print(all/20)
+
     #
     # for key, value in elements2:
     #     tree2.insert(key, value)
