@@ -89,9 +89,11 @@ class AVLTree(object):
     def set_root(self, node):
         self.root = node
 
+    #setting tree size
     def set_size(self, size_to_add):
         self.size = self.size + size_to_add
     
+    #setting max node of the tree
     def set_max(self, node):
         self.max = node
 
@@ -178,8 +180,8 @@ class AVLTree(object):
         root = self.get_root()
         if not root:  # if the tree is empty, set new node to root
             self.root = new_node
-            self.set_size(1)
-            self.set_max(new_node)
+            self.set_size(1) #increase tree's size by 1
+            self.set_max(new_node) #setting root as max node
             return new_node, 0, 0
         else:
             node, e = self.search_from_node(root, key, 0, True)  # find the new node parent
@@ -194,9 +196,12 @@ class AVLTree(object):
 
             new_node, h = self.balance_after_insert(new_node, node, 0)  # balance the tree after insertion
             self.set_size(1) #update size
+
+            #if the new node's key is bigger the current max, set new node as max node
             if self.max:
                 if key > self.max.key: self.set_max(new_node)
             return new_node, e, h
+
 
     def balance_after_insert(self, new_node, node, h=0):
         while node:
@@ -206,50 +211,28 @@ class AVLTree(object):
             if abs(bf) < 2 and prev_node_height == node.height:  # bf is legal and height didnt change, finish
                 return new_node, h
             elif abs(bf) < 2 and prev_node_height != node.height:
-                h += 1
+                h += 1 #promote case, h+=1
                 node = node.parent # bf is legel but height has changed, check parent
             else:  # balance tree
                 self.balance_tree(node, bf)
                 new_node.update_height()
-                self.update_heights_above(new_node)  # update heights while necessary
                 return new_node, h
         return new_node, h
 
+
     def balance_tree(self, node, bf):
         """Rebalance the tree."""
-        if bf < -1:  # if node is right child
-            if node.right.balance_factor() > 0:  # if node is left heavy
-                self.rotate_right(node.right)
-                self.rotate_left(node)
-            else:  # if node is right heavy
-                self.rotate_left(node)
-                return
-        elif bf > 1:  # if node is left child
-            if node.left.balance_factor() > 0:  # if node is left heavy
-                self.rotate_right(node)
-            else:  # if node is right heavy
+        if bf > 1: # if node left heavy
+            if node.left.balance_factor() < 0: # if node's left child is right heavy
                 self.rotate_left(node.left)
-                self.rotate_right(node)
-        # update node's childrens
-        node.left.update_height()
-        node.right.update_height()
-
-    # update heights and sizes up the path on node as until no longer effected by the height change
-    def update_heights_above(self, node):
-        prev_height = node.height # saving prev height for comparison
-        node.update_height()
-        curr_height = node.height
-
-        #going up to root to update heights until we find node with no change in height
-        while node.parent is not None and prev_height != curr_height: 
-            prev_height = node.height
-            node.update_height()
-            curr_height = node.height
-            node = node.parent
-
-        # update root
-        node.update_height()
+            self.rotate_right(node)
+                # Right heavy
+        else: # if node right heavy
+            if node.right.balance_factor() > 0: # if node's right child is left heavy
+                self.rotate_right(node.right)
+            self.rotate_left(node)
         return None
+
 
     def rotate_left(self, node):
         right_child = node.right  # Identify the right child of the node that will become the new root after rotation.
@@ -327,11 +310,10 @@ class AVLTree(object):
         new_node = AVLNode(key, val)
         if self.root is None:  # if the tree is empty, set new node to root
             self.root = new_node
-            self.set_size(1)
-            self.set_max(new_node)
+            self.set_size(1) #increase tree's size by 1
+            self.set_max(new_node) #setting root as max node
             return new_node, 0, 0
         else:
-            #self.update_max()
             node, e = self.finger_search(key, True)  # find the new node parent
             # and the number of edges from root to the parent
 
@@ -341,9 +323,11 @@ class AVLTree(object):
             else:
                 node.left = new_node
             new_node.parent = node
+
             new_node, h = self.balance_after_insert(new_node, node, 0)  # balance the tree after insertion
-            self.set_size(1)
-            if key > self.max.key : self.set_max(new_node)
+            self.set_size(1)  #increase tree's size by 1
+
+            if key > self.max.key : self.set_max(new_node) #setting new node as max node
             return new_node, e, h
 
     """deletes node from the dictionary
@@ -382,28 +366,21 @@ class AVLTree(object):
             node.key, node.value = successor.key, successor.value  # Replace key and value with successor's key
             self.delete(successor)  # Recursively delete successor
 
-        # Rebalance the tree and update heights
-        current = node
-        while current:
-            current.update_height()  # Update the height of the current node
-            balance_factor = current.balance_factor()  # Calculate balance factor
+        # #go up on the path to the root from the node, update heights and balance if needed
+        
+        while node:
+            node.update_height()  # Update the height of the current node
+            balance_factor = node.balance_factor() 
+            if abs(balance_factor) > 1:
+                self.balance_tree(node, balance_factor)
 
-            # Perform rotations if needed
-            if balance_factor > 1:  # Left-heavy
-                if current.left.balance_factor() < 0:  # Left-Right case
-                    self.rotate_left(current.left)
-                self.rotate_right(current)  # Left-Left case
-            elif balance_factor < -1:  # Right-heavy
-                if current.right.balance_factor() > 0:  # Right-Left case
-                    self.rotate_right(current.right)
-                self.rotate_left(current)  # Right-Right case
-
-            current = current.parent  # Move up the tree
+            node = node.parent  # Move up the tree
 
         # Update tree's size
         self.set_size(-1)
-        if self.max:
-            if node_key == self.max.key:
+
+        if self.max: #if the tree has max node
+            if node_key == self.max.key: #if we delete the max node, update max
                 self.update_max()
         return None
 
@@ -435,7 +412,7 @@ class AVLTree(object):
         tree1_root = self.get_root()
         tree2_root = tree2.get_root()
 
-        # Handle edge cases where both trees are empty, setting new node to be self's root
+        # Handle edge cases where both trees are empty, setting new node to be self's root and max node
         if tree1_root is None and tree2_root is None:
             self.set_root(new_node)
             self.set_max(new_node)
@@ -443,14 +420,14 @@ class AVLTree(object):
 
         #  Handle edge cases where one tree is empty
         if tree1_root is None:
-            tree2.insert(new_node.key, new_node.value)
-            self.set_root(tree2.root)
-            self.set_max(tree2.max)
-            tree2.set_root(None)
+            tree2.insert(new_node.key, new_node.value) #join with one node is equal to insert
+            self.set_root(tree2.root) # set self to the tree we want ro return
+            self.set_max(tree2.max) #set max node
+            tree2.set_root(None) # making tree2 unusable
             return None
 
         if tree2_root is None:
-            self.insert(new_node.key, new_node.value)
+            self.insert(new_node.key, new_node.value) #join with one node is equal to insert
             return None
 
         # Determine which tree is taller and direction to attach
@@ -460,6 +437,7 @@ class AVLTree(object):
             else:
                 flag = False
             higher, shorter, attach_left = self, tree2, flag
+
         # elif tree1_root.height < tree2_root.height:
         else:
             if tree1_root.key > tree2_root.key:
@@ -506,33 +484,26 @@ class AVLTree(object):
 
         # setting self root as higher root in case self is the shorter one
         tree2_max = tree2.max
-        if self.max and tree2_max :
-            if tree2_max.key > self.max.key :
+        if self.max and tree2_max : #if there is max node to both trees
+            if tree2_max.key > self.max.key : #if tree2's max node is greater the tree1's max node set max
                 self.set_max(tree2_max)
-        self.set_root(higher.get_root())
+        
+        #if tree2 is the higher tree, set higher's root to be self's root
+        if higher.root == tree2.root:
+            self.set_root(higher.get_root()) 
 
-        current = new_node
+        #go up on the path to the root from the new node, update heights and balance if needed
+        node = new_node
 
-        while current:
-            current.update_height() 
-            balance_factor = current.balance_factor()
-
+        while node:
+            node.update_height() 
+            balance_factor = node.balance_factor()
             if abs(balance_factor) > 1:
-                # Left heavy
-                if balance_factor > 1:
-                    if current.left.balance_factor() < 0:
-                        self.rotate_left(current.left)
-                    self.rotate_right(current)
-                # Right heavy
-                else:
-                    if current.right.balance_factor() > 0:
-                        self.rotate_right(current.right)
-                    self.rotate_left(current)
+                self.balance_tree(node, balance_factor)
 
-            current = current.parent
+            node = node.parent
 
-        # Final height update
-        self.update_heights_above(new_node)
+        #make tree2 to וnusable
         tree2.set_root(None)
         return None
 
@@ -571,12 +542,12 @@ class AVLTree(object):
                         parent.right.parent = None  # remove edge between the node and his parent
                         t2.insert(parent.key, parent.value)  # add parent to t2
                     else:
-                        right_tree = AVLTree()
-                        parent.right.parent = None
-                        right_tree.set_root(parent.right)
+                        right_tree = AVLTree() 
+                        right_tree.set_root(parent.right) #set the right subtree of parent as right tree
+                        parent.right.parent = None  # remove edge between the node and his parent
                         t2.join(right_tree, parent.key, parent.value)
                 else:
-                    t2.insert(parent.key, parent.value)
+                    t2.insert(parent.key, parent.value) #insert the parent to t2 in case the parent has no right child
                 # Remove current connection
                 parent.left = None
 
@@ -589,11 +560,11 @@ class AVLTree(object):
                         t1.insert(parent.key, parent.value)  # add parent to t1
                     else:
                         left_tree = AVLTree()
-                        left_tree.set_root(parent.left)
-                        parent.left.parent = None
+                        left_tree.set_root(parent.left) #set the left subtree of parent as right tree
+                        parent.left.parent = None # remove edge between the node and his parent
                         t1.join(left_tree, parent.key, parent.value)
                 else:
-                    t1.insert(parent.key, parent.value)
+                    t1.insert(parent.key, parent.value)  #insert the parent to t1 in case the parent has no left child
                 # Remove current connection
                 parent.right = None
 
@@ -602,7 +573,8 @@ class AVLTree(object):
 
         # Clear the root of the original tree
         self.set_root(None)
-        t1.update_max()
+        #set max for both trees
+        t1.update_max() 
         t2.update_max()
 
         return t1, t2
@@ -712,7 +684,7 @@ def main():
         return arr
     tree1 = AVLTree()
     tree2 = AVLTree()
-    elements1 = [(i,"A") for i in range(111*(2**10),0,-1)]
+    elements1 = [(i,"A") for i in range(111*(2**1),0,-1)]
     # arr = randomized_swap_sorted_array(elements1)
     # print(count_inversions(arr))
     
@@ -721,18 +693,20 @@ def main():
     k = 0
     sums = []
     while k < 20  :
-        sum = 0
-        #random.shuffle(elements1)
+        print(k)
         arr = randomized_swap_sorted_array(elements1)
-        for key, value in arr:
-            node, e, h= tree1.finger_insert(key, value)
-            sum += h
+        cnt = count_inversions(arr)
+        print(k , ":" , cnt)
+        sums.append(cnt)
+        #sum = 0
+        #random.shuffle(elements1)
+        # for key, value in arr:
+        #     node, e, h= tree1.finger_insert(key, value)
+            #sum += h
             #print(h)
                 #print(tree1.avl_to_array())
-        sums.append(sum)
+        #sums.append(sum)
         # k += 1
-        # cnt = count_inversions(arr)
-        # sums.append(cnt)
         k += 1
     all = 0
     for i in range(len(sums)):
