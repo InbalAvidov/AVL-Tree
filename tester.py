@@ -145,8 +145,6 @@ class Test:
                 raise TestFailedException(steps) from e
 
     def _perform_step(self, step):
-        # print("*****************************************************")
-        # print("perform step is", step[0])
         if step[0] == "delete":
             self._perform_delete(step)
         if step[0] == "split":
