@@ -28,9 +28,6 @@ class AVLNode(object):
             self.right = None  # right child of virual node is None
             self.parent = node
             self.height = -1
-            ##remember to delete
-            self.size = 0
-            # self.size = 0
         else:  # key has not None value, creating a real node
             self.left = AVLNode(None, None)  # left child is virtual node
             self.right = AVLNode(None, None)  # right child is virtual node
@@ -38,8 +35,6 @@ class AVLNode(object):
             self.height = 0
             self.left.parent = self
             self.right.parent = self
-            ##remember to delete
-            self.size = 1
 
     """returns whether self is not a virtual node 
 
@@ -153,12 +148,14 @@ class AVLTree(object):
         # going up from max_node until we get to the first node that his key is smaller then the key that we search
         # or until root
         while node is not None:
-            while node.key > key and node.parent is not None:
-                node = node.parent
-                e += 1
-            # search toward down from the node we found
-            node, e = self.search_from_node(node, key, e, is_insert)
-            break
+            if key == node.left.key : return node.left, e
+            else:
+                while node.key > key and node.parent is not None:
+                    node = node.parent
+                    e += 1
+                # search toward down from the node we found
+                node, e = self.search_from_node(node, key, e, is_insert)
+                break
         return node, e
 
     """inserts a new node into the dictionary with corresponding key and value (starting at the root)
@@ -314,7 +311,7 @@ class AVLTree(object):
             self.set_max(new_node) #setting root as max node
             return new_node, 0, 0
         else:
-            node, e = self.finger_search(key, True)  # find the new node parent
+            node = self.finger_search(key, True)[0]  # find the new node parent
             # and the number of edges from root to the parent
 
             # setting the new node as child of the parent
@@ -323,11 +320,15 @@ class AVLTree(object):
             else:
                 node.left = new_node
             new_node.parent = node
+            if key > self.max.key : 
+                self.set_max(new_node) #setting new node as max node
+                e = 1
+            else :
+                e = self.finger_search(key, False)[1] # get number of edges between max node and the new node
 
             new_node, h = self.balance_after_insert(new_node, node, 0)  # balance the tree after insertion
             self.set_size(1)  #increase tree's size by 1
 
-            if key > self.max.key : self.set_max(new_node) #setting new node as max node
             return new_node, e, h
 
     """deletes node from the dictionary
@@ -619,19 +620,6 @@ class AVLTree(object):
                 node = node.right
             self.set_max(parent)  # Return the last real node encountered
 
-    def min_node(self):
-        node = self.get_root()
-        if node is None:  # if the tree is empty, return None
-            return None
-        if not node.left.is_real_node():  # if there is no left child, the root is the minimum node
-            return self
-        else:  # travel down the right subtree to find the leftmost node
-            parent = node
-            while node.left.is_real_node():  # Continue until a virtual node is reached
-                parent = node  # Keep track of the last real node
-                node = node.left
-            return parent  # Return the last real node encountered
-
     """returns the number of items in dictionary 
 
     @rtype: int
@@ -682,40 +670,34 @@ def main():
                 arr[i] = arr[i+1]
                 arr[i+1] = i_val
         return arr
+    
     tree1 = AVLTree()
     tree2 = AVLTree()
-    elements1 = [(i,"A") for i in range(111*(2**1),0,-1)]
     # arr = randomized_swap_sorted_array(elements1)
     # print(count_inversions(arr))
     
-    #elements2 = [(10, "A"),(20, "A"),(30, "A"),(20, "A")]
+    # elements2 = [(10, "A"),(5, "A"),(20, "A"),(15, "A")]
     # #     # 3 = [(10, "A"), (20, "B"), (30, "C")]
-    k = 0
-    sums = []
-    while k < 20  :
-        print(k)
-        arr = randomized_swap_sorted_array(elements1)
-        cnt = count_inversions(arr)
-        print(k , ":" , cnt)
-        sums.append(cnt)
-        #sum = 0
-        #random.shuffle(elements1)
-        # for key, value in arr:
-        #     node, e, h= tree1.finger_insert(key, value)
-            #sum += h
-            #print(h)
-                #print(tree1.avl_to_array())
-        #sums.append(sum)
-        # k += 1
-        k += 1
-    all = 0
-    for i in range(len(sums)):
-        all += sums[i]
-    print(all//20)
+    for l in range(1,11):
+        elements1 = [(i,"A") for i in range(111*(2**l), 0, -1)]
+        k = 0
+        sums = []
+        while k < 20  :
+            arr = randomized_swap_sorted_array(elements1)
+            sum = 0
+            for key, value in arr:
+                e = tree2.finger_insert(key, value)[1]
+                sum += e
+            sums.append(sum)
+            
+            # sums.append(count_inversions(elements1))
+            # sums.append(sum)
+            k += 1
+        all = 0
+        for i in range(len(sums)):
+            all += sums[i]
+        print(all//20)
 
-    #
-    # for key, value in elements2:
-    #     tree2.insert(key, value)
 
 
 if __name__ == '__main__':
