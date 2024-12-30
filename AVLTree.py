@@ -111,7 +111,7 @@ class AVLTree(object):
         while node.is_real_node():
             if not is_insert:  # the case of node.key == key is not possible in insert
                 if node.key == key:
-                    return node, e + 1
+                    return node, e
             else:  # save the node's parent for insert
                 prev_node = node
             if node.key < key:
@@ -157,7 +157,7 @@ class AVLTree(object):
                 node, e = self.search_from_node(node, key, e, is_insert)
                 break
         return node, e
-
+    
     """inserts a new node into the dictionary with corresponding key and value (starting at the root)
 
     @type key: int
@@ -312,7 +312,6 @@ class AVLTree(object):
             return new_node, 0, 0
         else:
             node = self.finger_search(key, True)[0]  # find the new node parent
-            # and the number of edges from root to the parent
 
             # setting the new node as child of the parent
             if node.key < key:
@@ -320,6 +319,7 @@ class AVLTree(object):
             else:
                 node.left = new_node
             new_node.parent = node
+
             if key > self.max.key : 
                 self.set_max(new_node) #setting new node as max node
                 e = 1
@@ -664,39 +664,44 @@ def main():
 
     def randomized_swap_sorted_array(arr):
         n = len(arr)
-        for i in range(0, n-1):  # עובר מהאינדקס השני מהסוף עד הראשון
+        for i in range(n-1):  # עובר מהאינדקס השני מהסוף עד הראשון
             if random.random() < 0.5:  # סיכוי של חצי
-                i_val = arr[i]
-                arr[i] = arr[i+1]
-                arr[i+1] = i_val
+                arr[i], arr[i+1] = arr[i+1], arr[i]
         return arr
     
     tree1 = AVLTree()
-    tree2 = AVLTree()
+    #tree2 = AVLTree()
     # arr = randomized_swap_sorted_array(elements1)
     # print(count_inversions(arr))
     
     # elements2 = [(10, "A"),(5, "A"),(20, "A"),(15, "A")]
     # #     # 3 = [(10, "A"), (20, "B"), (30, "C")]
-    for l in range(1,11):
-        elements1 = [(i,"A") for i in range(111*(2**l), 0, -1)]
-        k = 0
-        sums = []
-        while k < 20  :
-            arr = randomized_swap_sorted_array(elements1)
-            sum = 0
-            for key, value in arr:
-                e = tree2.finger_insert(key, value)[1]
-                sum += e
-            sums.append(sum)
+    #for j in range(5,6):    
+    k = 0
+    sums = []
+    while k < 20  :
+            #arr = randomized_swap_sorted_array(elements1)
+            # cnt = count_inversions(arr)
+            # print(cnt)
+            # sums.append(cnt)
+        tree2 = AVLTree()
+        elements1 = [(i,"A") for i in range(1, (111*(2**1))+1)]
+        sum = 0
+        #arr = randomized_swap_sorted_array(elements1)
+        random.shuffle(elements1)
+        for key, value in elements1:
+            e = tree2.finger_insert(key, value)[1]
+            sum += e
+        #print(sum)
+        sums.append(sum)
             
             # sums.append(count_inversions(elements1))
             # sums.append(sum)
-            k += 1
-        all = 0
-        for i in range(len(sums)):
-            all += sums[i]
-        print(all//20)
+        k += 1
+    all = 0
+    for i in range(len(sums)):
+        all += sums[i]
+    print(all//20)
 
 
 
