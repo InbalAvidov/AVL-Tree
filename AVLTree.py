@@ -309,10 +309,9 @@ class AVLTree(object):
             self.root = new_node
             self.set_size(1) #increase tree's size by 1
             self.set_max(new_node) #setting root as max node
-            return new_node, 0, 0
+            return new_node, 1, 0
         else:
             node = self.finger_search(key, True)[0]  # find the new node parent
-
             # setting the new node as child of the parent
             if node.key < key:
                 node.right = new_node
@@ -325,10 +324,8 @@ class AVLTree(object):
                 e = 1
             else :
                 e = self.finger_search(key, False)[1] # get number of edges between max node and the new node
-
             new_node, h = self.balance_after_insert(new_node, node, 0)  # balance the tree after insertion
             self.set_size(1)  #increase tree's size by 1
-
             return new_node, e, h
 
     """deletes node from the dictionary
@@ -679,29 +676,29 @@ def main():
     #for j in range(5,6):    
     k = 0
     sums = []
-    while k < 20  :
+    while k < 1  :
             #arr = randomized_swap_sorted_array(elements1)
             # cnt = count_inversions(arr)
             # print(cnt)
             # sums.append(cnt)
         tree2 = AVLTree()
-        elements1 = [(i,"A") for i in range(1, (111*(2**1))+1)]
+        elements1 = [(i,"A") for i in range(1, (111*(2**4))+1)]
         sum = 0
         #arr = randomized_swap_sorted_array(elements1)
-        random.shuffle(elements1)
+        #random.shuffle(elements1)
         for key, value in elements1:
             e = tree2.finger_insert(key, value)[1]
             sum += e
-        #print(sum)
-        sums.append(sum)
+        print(sum)
+        #sums.append(sum)
             
             # sums.append(count_inversions(elements1))
             # sums.append(sum)
         k += 1
-    all = 0
-    for i in range(len(sums)):
-        all += sums[i]
-    print(all//20)
+    # all = 0
+    # for i in range(len(sums)):
+    #     all += sums[i]
+    # print(all//20)
 
 
 
