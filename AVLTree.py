@@ -77,7 +77,7 @@ class AVLTree(object):
 
     def __init__(self):
         self.root = None
-        self.size = 0
+        self._size = 0
         self.max = None
 
     # setting root to empty tree
@@ -86,7 +86,7 @@ class AVLTree(object):
 
     #setting tree size
     def set_size(self, size_to_add):
-        self.size = self.size + size_to_add
+        self._size = self._size + size_to_add
     
     #setting max node of the tree
     def set_max(self, node):
@@ -127,6 +127,8 @@ class AVLTree(object):
     # searching node from root
     def search(self, key):
         node = self.root
+        if not node:
+            return None, 1
         # calling to search_from_node with the root and is_insert= False
         x, e = self.search_from_node(node, key, 1, False)
         return x, e
@@ -360,7 +362,9 @@ class AVLTree(object):
             # Find in-order successor (smallest in the right subtree)
             successor = self.get_successor(node.right)
             node.key, node.value = successor.key, successor.value  # Replace key and value with successor's key
+            curr = successor.parent # # Save successor's parent for rebalancing
             self.delete(successor)  # Recursively delete successor
+            return # Return here to avoid double-decrementing size
 
         # #go up on the path to the root from the node, update heights and balance if needed
         
@@ -622,7 +626,7 @@ class AVLTree(object):
     """
 
     def size(self):
-        return self.size
+        return self._size
 
     """returns the root of the tree representing the dictionary
 
@@ -645,76 +649,3 @@ class AVLTree(object):
 
         _print(self.root)
 
-
-
-def main():
-    
-    
-    print()
-    print("start")
-    
-    
-    # k = 0
-    # sums = []
-    # while k < 1 :
-    #     tree2 = AVLTree()
-    #     elements1 = [(i,"A") for i in range(111*2**(10), 0 , -1)]
-    #     sum = 0
-    #     for key, value in elements1:
-    #         e = tree2.finger_insert(key, value)[1]
-    #         sum += e
-    #     print("sum ", sum)
-    #     sums.append(sum)
-    #     k += 1
-    # all = 0
-    # for i in range(len(sums)):
-    #     all += sums[i]
-    # print("ave " , all//1)
-    
-    
-    
-    
-    def count_inversions(arr):
-        n = len(arr)
-        inv_count = 0
-        for i in range(n):
-            for j in range(i + 1, n):
-                if arr[i] > arr[j]:
-                    inv_count += 1
-        return inv_count
-
-    def randomized_swap_sorted_array(arr):
-        n = len(arr)
-        for i in range(n-1):  # עובר מהאינדקס השני מהסוף עד הראשון
-            if random.random() < 0.5:  # סיכוי של חצי
-                arr[i], arr[i+1] = arr[i+1], arr[i]
-        return arr
-    
-    # tree1 = AVLTree()
-    # tree2 = AVLTree()
-    # arr = randomized_swap_sorted_array(elements1)
-    # print(count_inversions(arr))
-    # for j in range(5,6):    
-    k = 0
-    sums = []
-    while k < 20  :
-        tree2 = AVLTree()
-        elements1 = [(i,"A") for i in range(1,(111*(2**10)))]
-        arr = randomized_swap_sorted_array(elements1)
-        sum = 0
-        #arr = randomized_swap_sorted_array(elements1)
-        #random.shuffle(elements1)
-        for key, value in arr:
-            e = tree2.finger_insert(key, value)[1]
-            sum += e
-        sums.append(sum)
-        k += 1
-    all = 0
-    for i in range(len(sums)):
-        all += sums[i]
-    print("all",all//20)
-
-
-
-if __name__ == '__main__':
-    main()
